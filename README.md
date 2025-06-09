@@ -62,7 +62,7 @@ https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
 
 Below is a screenshot of the main interface of JUNUB Real Estate:
 
-![JUNUB Real Estate Home](JUNUB REAL ESTATE\frontend\public\Images\Screenshot 2025-06-09 164400.png)
+![JUNUB Real Estate Home](./frontend/public/Images/Screenshot%202025-06-09%20164400.png)
 
 > *Find Your Dream Home in South Sudan* — The homepage features a quick search for properties by location, type, status, and bedrooms, with a modern and user-friendly interface.
 
