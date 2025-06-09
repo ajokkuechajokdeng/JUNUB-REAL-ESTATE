@@ -8,7 +8,7 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 
 ## GitHub Repository
 
-
+https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
 
 ---
 
