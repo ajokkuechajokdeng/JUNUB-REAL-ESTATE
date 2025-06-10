@@ -64,7 +64,7 @@ Below is a screenshot of the main interface of JUNUB Real Estate:
 
 ![JUNUB Real Estate Home](./frontend/public/Images/Screenshot%202025-06-09%20164400.png)
 
-> *Find Your Dream Home in South Sudan* — The homepage features a quick search for properties by location, type, status, and bedrooms, with a modern and user-friendly interface.
+> _Find Your Dream Home in South Sudan_ — The homepage features a quick search for properties by location, type, status, and bedrooms, with a modern and user-friendly interface.
 
 ---
 
@@ -78,8 +78,8 @@ Below is a screenshot of the main interface of JUNUB Real Estate:
 ---
 
 ## Notes
+
 - To extend backend functionality, add models, serializers, and viewsets in the `realestate` app.
 - The frontend supports multiple languages via the `public/locales` directory.
 
 ---
-
