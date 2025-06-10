@@ -12,6 +12,14 @@ https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
 
 ---
 
+## Database Schema
+
+Below is the database schema for JUNUB Real Estate:
+
+![Database Schema](./frontend/public/Images/Databases%20Schema.png)
+
+---
+
 ## How to Set Up the Environment and Project
 
 ### Backend (Django)
