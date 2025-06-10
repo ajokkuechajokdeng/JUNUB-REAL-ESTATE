@@ -8,6 +8,7 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 ## Table of Contents
 - [GitHub Repository](#github-repository)
 - [Figma Design](#figma-design)
+- [Demo Video](#demo-video)
 - [Database Schema](#database-schema)
 - [How to Set Up the Environment and Project](#how-to-set-up-the-environment-and-project)
   - [Backend (Django)](#backend-django)
@@ -26,6 +27,12 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 ## Figma Design
 You can view the UI/UX design prototype on Figma:
 [View JUNUB REAL ESTATE on Figma](https://www.figma.com/design/Vx4Vy7ZaK3JQ63eSZtiaFt/JUNUB-REAL-ESTATE..?node-id=0-1&t=xZecZrEgNEpufP3B-1)
+
+---
+
+## Demo Video
+Watch a video demonstration of the app here:
+[App Demo Video](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing&t=57)
 
 ---
 
