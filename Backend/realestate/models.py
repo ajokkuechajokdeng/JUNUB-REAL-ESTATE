@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+import uuid
 
 
 class PropertyType(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -11,6 +13,7 @@ class PropertyType(models.Model):
 
 
 class Feature(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -18,6 +21,7 @@ class Feature(models.Model):
 
 
 class Agent(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='agent_profile')
     name = models.CharField(max_length=255)
@@ -32,6 +36,7 @@ class House(models.Model):
         ('for_sale', 'For Sale'),
         ('for_rent', 'For Rent'),
     ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -58,6 +63,7 @@ class House(models.Model):
 
 
 class PropertyImage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     house = models.ForeignKey(
         House, on_delete=models.CASCADE, related_name='images')
     image = models.URLField()
@@ -67,6 +73,7 @@ class PropertyImage(models.Model):
 
 
 class UserProfile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=20, blank=True)
@@ -78,6 +85,7 @@ class UserProfile(models.Model):
 
 
 class Favorite(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, related_name='favorites')
     house = models.ForeignKey(

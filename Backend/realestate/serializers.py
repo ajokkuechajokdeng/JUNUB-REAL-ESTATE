@@ -5,30 +5,39 @@ from django.contrib.auth.password_validation import validate_password
 
 
 class PropertyTypeSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = PropertyType
         fields = ['id', 'name']
 
 
 class FeatureSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = Feature
         fields = ['id', 'name']
 
 
 class PropertyImageSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = PropertyImage
         fields = ['id', 'image']
 
 
 class AgentSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = Agent
         fields = ['id', 'name', 'phone']
 
 
 class HouseSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
     property_type = PropertyTypeSerializer(read_only=True)
     property_type_id = serializers.PrimaryKeyRelatedField(
         queryset=PropertyType.objects.all(), source='property_type', write_only=True, required=False)
@@ -49,9 +58,11 @@ class HouseSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = ['phone_number', 'address']
+        fields = ['id', 'phone_number', 'address']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -64,6 +75,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
     house = HouseSerializer(read_only=True)
     house_id = serializers.PrimaryKeyRelatedField(
         queryset=House.objects.all(), source='house', write_only=True)
