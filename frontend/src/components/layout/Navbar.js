@@ -62,14 +62,17 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              <>
-                <Link to="/login" className="hover:text-blue-200">
+              <div className="flex items-center gap-2">
+                <Link to="/login" className="px-4 py-2 rounded  text-white transition-colors duration-200 hover:bg-white hover:text-blue-600 focus:bg-white focus:text-blue-600 focus:outline-none">
                   {t('Login')}
                 </Link>
-                <Link to="/register" className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100">
+                <Link
+                  to="/register"
+                  className="px-4 py-2 rounded  text-white transition-colors duration-200 hover:bg-white hover:text-blue-600 focus:bg-white focus:text-blue-600 focus:outline-none"
+                >
                   {t('Register')}
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
