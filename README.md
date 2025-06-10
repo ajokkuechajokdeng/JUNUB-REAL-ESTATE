@@ -32,7 +32,7 @@ You can view the UI/UX design prototype on Figma:
 
 ## Demo Video
 Watch a video demonstration of the app here:
-[App Demo Video](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing&t=57)
+[App Demo Video](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing)
 
 ---
 
