@@ -2,6 +2,11 @@
 
 This project provides a Django backend for a real estate frontend. All important data such as houses and related entities are provided via API endpoints using Django REST Framework.
 
+## Video Demo
+
+Watch a video demonstration of the app here:
+[App Demo Video](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing&t=57)
+
 ## Features
 - API endpoints for houses (CRUD)
 - Django admin for managing data
