@@ -14,9 +14,11 @@ import MyRentals from './pages/dashboard/MyRentals';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/auth/PrivateRoute';
+import useAlan from './hooks/useAlan';
 
 function App() {
   const { t } = useTranslation();
+  useAlan();
 
   return (
     <AuthProvider>

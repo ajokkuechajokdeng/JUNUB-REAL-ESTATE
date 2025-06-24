@@ -60,6 +60,8 @@ const PropertyList = () => {
     fetchProperties();
   }, [filters, t]);
 
+
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
