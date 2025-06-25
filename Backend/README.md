@@ -8,11 +8,13 @@ Watch a video demonstration of the app here:
 [App Demo Video](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing&t=57)
 
 ## Features
+
 - API endpoints for houses (CRUD)
 - Django admin for managing data
 - Easily extendable for more real estate entities
 
 ## Setup
+
 1. Install dependencies:
    ```bash
    pip install django djangorestframework
@@ -32,10 +34,13 @@ Watch a video demonstration of the app here:
    ```
 
 ## API Endpoints
+
 - `/api/houses/` - List, create, retrieve, update, and delete houses
 
 ## Admin
+
 - Visit `/admin/` to manage data via the Django admin interface.
 
 ## Extending
+
 - Add more models, serializers, and viewsets in the `realestate` app as needed.
