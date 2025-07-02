@@ -9,11 +9,15 @@ import Register from './pages/auth/Register';
 import Profile from './pages/auth/Profile';
 import PropertyList from './pages/properties/PropertyList';
 import PropertyDetail from './pages/properties/PropertyDetail';
+import AddProperty from './pages/properties/AddProperty';
 import Dashboard from './pages/dashboard/Dashboard';
 import MyRentals from './pages/dashboard/MyRentals';
+import MyProperties from './pages/dashboard/MyProperties';
+import Favorites from './pages/dashboard/Favorites';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/auth/PrivateRoute';
+import RoleBasedRoute from './components/auth/RoleBasedRoute';
 import useAlan from './hooks/useAlan';
 
 function App() {
@@ -42,9 +46,24 @@ function App() {
               </PrivateRoute>
             } />
             <Route path="/my-rentals" element={
-              <PrivateRoute>
+              <RoleBasedRoute allowedRoles="tenant" redirectTo="/dashboard">
                 <MyRentals />
-              </PrivateRoute>
+              </RoleBasedRoute>
+            } />
+            <Route path="/favorites" element={
+              <RoleBasedRoute allowedRoles="tenant" redirectTo="/dashboard">
+                <Favorites />
+              </RoleBasedRoute>
+            } />
+            <Route path="/my-properties" element={
+              <RoleBasedRoute allowedRoles="agent" redirectTo="/dashboard">
+                <MyProperties />
+              </RoleBasedRoute>
+            } />
+            <Route path="/add-property" element={
+              <RoleBasedRoute allowedRoles="agent" redirectTo="/dashboard">
+                <AddProperty />
+              </RoleBasedRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>

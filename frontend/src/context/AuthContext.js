@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "../services/api";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -18,7 +19,10 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       if (token) {
         try {
+          console.log("Loading user data from token");
           const res = await authAPI.getProfile();
+          console.log("User data loaded:", res.data);
+          console.log("User role loaded:", res.data?.profile?.role);
           setUser(res.data);
         } catch (err) {
           console.error("Error loading user:", err);
@@ -27,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         }
       } else {
+        console.log("No token found, user not authenticated");
         setLoading(false);
       }
     };
@@ -44,11 +49,18 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("refreshToken", refresh);
       setToken(access);
       const userRes = await authAPI.getProfile();
+
+      // Debug: Log user data after login
+      console.log("User data after login:", userRes.data);
+      console.log("User role after login:", userRes.data?.profile?.role);
+
       setUser(userRes.data);
       // Redirect based on role
       if (userRes.data?.profile?.role === "agent") {
+        console.log("Redirecting to agent dashboard");
         navigate("/dashboard");
       } else {
+        console.log("Redirecting to tenant rentals");
         navigate("/my-rentals");
       }
       return true;
@@ -65,17 +77,27 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setError(null);
     try {
+      // Debug: Log the role being sent during registration
+      console.log("Registering with role:", userData.role);
+
       const res = await authAPI.register(userData);
       const { access, refresh } = res.data;
       localStorage.setItem("token", access);
       localStorage.setItem("refreshToken", refresh);
       setToken(access);
       const userRes = await authAPI.getProfile();
+
+      // Debug: Log user data after registration
+      console.log("User data after registration:", userRes.data);
+      console.log("User role after registration:", userRes.data?.profile?.role);
+
       setUser(userRes.data);
       // Redirect based on role (default tenant)
       if (userRes.data?.profile?.role === "agent") {
+        console.log("Redirecting to agent dashboard after registration");
         navigate("/dashboard");
       } else {
+        console.log("Redirecting to tenant rentals after registration");
         navigate("/my-rentals");
       }
       return true;
@@ -133,6 +155,31 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  // Refresh token function
+  const refreshToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        logout();
+        return false;
+      }
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/users/token/refresh/",
+        { refresh: refreshToken }
+      );
+
+      const { access } = response.data;
+      localStorage.setItem("token", access);
+      setToken(access);
+      return true;
+    } catch (err) {
+      console.error("Error refreshing token:", err);
+      logout();
+      return false;
+    }
+  };
+
   // Check if user is authenticated
   const isAuthenticated = () => !!token;
 
@@ -148,6 +195,7 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         changePassword,
         isAuthenticated,
+        refreshToken,
       }}
     >
       {children}

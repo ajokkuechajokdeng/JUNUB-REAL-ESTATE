@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
@@ -8,9 +8,15 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const { user } = useContext(AuthContext);
 
+  // Debug: Log user object when component mounts
+  console.log("Dashboard mounted, user:", user);
+  console.log("User role:", user?.profile?.role);
+
   const [activeTab, setActiveTab] = useState("overview");
   const [userProperties, setUserProperties] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [inquiries, setInquiries] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,25 +24,60 @@ const Dashboard = () => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Fetch user properties and favorites from backend
-        const propertiesRes = await axios.get(
-          "http://127.0.0.1:8000/api/properties/listings/my_properties/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setUserProperties(propertiesRes.data.results || propertiesRes.data);
-        const favoritesRes = await axios.get(
-          "http://127.0.0.1:8000/api/properties/favorites/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setFavorites(favoritesRes.data.results || favoritesRes.data);
+        const headers = {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+
+        // Debug: Log user role before fetching data
+        console.log("Fetching data for user role:", user?.profile?.role);
+
+        // Fetch different data based on user role
+        if (user?.profile?.role === 'tenant') {
+          // For tenants: fetch favorites and recommendations
+          const favoritesRes = await axios.get(
+            "http://127.0.0.1:8000/api/properties/favorites/",
+            { headers }
+          );
+          setFavorites(favoritesRes.data.results || favoritesRes.data);
+
+          // Fetch recommended properties based on favorites
+          const recommendationsRes = await axios.get(
+            "http://127.0.0.1:8000/api/properties/favorites/recommended/",
+            { headers }
+          );
+          setRecommendations(recommendationsRes.data.results || recommendationsRes.data);
+
+          // Fetch tenant's inquiries
+          const inquiriesRes = await axios.get(
+            "http://127.0.0.1:8000/api/properties/inquiries/",
+            { headers }
+          );
+          setInquiries(inquiriesRes.data.results || inquiriesRes.data);
+        } 
+        else if (user?.profile?.role === 'agent') {
+          // Debug: Log that we're in the agent branch
+          console.log("Fetching data for agent role");
+
+          // For agents: fetch properties and inquiries
+          const propertiesRes = await axios.get(
+            "http://127.0.0.1:8000/api/properties/listings/agent_properties/",
+            { headers }
+          );
+          console.log("Agent properties:", propertiesRes.data);
+          setUserProperties(propertiesRes.data.results || propertiesRes.data);
+
+          // Fetch inquiries about agent's properties
+          const inquiriesRes = await axios.get(
+            "http://127.0.0.1:8000/api/properties/inquiries/",
+            { headers }
+          );
+          console.log("Agent inquiries:", inquiriesRes.data);
+          setInquiries(inquiriesRes.data.results || inquiriesRes.data);
+        } else {
+          // Debug: Log if we're not in any role branch
+          console.log("User role not recognized:", user?.profile?.role);
+        }
+
         setError(null);
       } catch (err) {
         console.error("Error fetching user data:", err);
@@ -46,8 +87,10 @@ const Dashboard = () => {
       }
     };
 
-    fetchUserData();
-  }, [t]);
+    if (user) {
+      fetchUserData();
+    }
+  }, [t, user]);
 
   const handleRemoveFavorite = async (id) => {
     try {
@@ -68,71 +111,91 @@ const Dashboard = () => {
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
+        {/* First card - role specific */}
+        {user?.profile?.role === 'agent' ? (
+          <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-blue-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">{t("My Properties")}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {userProperties.length}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">{t("My Properties")}</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {userProperties.length}
-              </p>
+            <div className="mt-4 flex justify-between items-center">
+              <button
+                onClick={() => setActiveTab("properties")}
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                {t("Manage properties")}
+                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                {t("Agent")}
+              </span>
             </div>
           </div>
-          <button
-            onClick={() => setActiveTab("properties")}
-            className="mt-4 text-sm text-blue-600 hover:text-blue-800"
-          >
-            {t("View all")} →
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-red-100 text-red-600 mr-4">
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-purple-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">{t("My Favorites")}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {favorites.length}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">{t("Favorites")}</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {favorites.length}
-              </p>
+            <div className="mt-4 flex justify-between items-center">
+              <button
+                onClick={() => setActiveTab("favorites")}
+                className="text-sm text-purple-600 hover:text-purple-800 flex items-center"
+              >
+                {t("View favorites")}
+                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                {t("Tenant")}
+              </span>
             </div>
           </div>
-          <button
-            onClick={() => setActiveTab("favorites")}
-            className="mt-4 text-sm text-blue-600 hover:text-blue-800"
-          >
-            {t("View all")} →
-          </button>
-        </div>
+        )}
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        {/* Second card - inquiries for both roles */}
+        <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-green-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
               <svg
@@ -145,30 +208,124 @@ const Dashboard = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                 />
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-500">{t("Account Age")}</p>
+              <p className="text-sm text-gray-500">
+                {user?.profile?.role === 'agent' ? t("Property Inquiries") : t("My Inquiries")}
+              </p>
               <p className="text-2xl font-semibold text-gray-900">
-                {user?.date_joined
-                  ? Math.floor(
-                      (new Date() - new Date(user.date_joined)) /
-                        (1000 * 60 * 60 * 24)
-                    )
-                  : 0}{" "}
-                {t("days")}
+                {inquiries.length}
               </p>
             </div>
           </div>
-          <Link
-            to="/profile"
-            className="mt-4 text-sm text-blue-600 hover:text-blue-800 inline-block"
-          >
-            {t("View profile")} →
-          </Link>
+          <div className="mt-4 flex justify-between items-center">
+            <button
+              onClick={() => setActiveTab("inquiries")}
+              className="text-sm text-green-600 hover:text-green-800 flex items-center"
+            >
+              {user?.profile?.role === 'agent' ? t("Manage inquiries") : t("View inquiries")}
+              <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {inquiries.length > 0 && (
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                user?.profile?.role === 'agent' 
+                  ? 'bg-yellow-100 text-yellow-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {inquiries.filter(i => i.status === 'pending').length > 0 
+                  ? t("{{count}} pending", { count: inquiries.filter(i => i.status === 'pending').length }) 
+                  : t("All responded")}
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Third card - role specific */}
+        {user?.profile?.role === 'agent' ? (
+          <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-amber-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-amber-100 text-amber-600 mr-4">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">{t("Performance")}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {inquiries.length > 0 
+                    ? Math.round((inquiries.filter(i => i.status !== 'pending').length / inquiries.length) * 100) 
+                    : 0}%
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex justify-between items-center">
+              <div className="text-sm text-amber-600">
+                {t("Response rate")}
+              </div>
+              <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800">
+                {user?.date_joined
+                  ? Math.floor((new Date() - new Date(user.date_joined)) / (1000 * 60 * 60 * 24))
+                  : 0}{" "}
+                {t("days active")}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-indigo-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">{t("Recommendations")}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {recommendations.length}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex justify-between items-center">
+              <button
+                onClick={() => setActiveTab("recommendations")}
+                className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center"
+              >
+                {t("View recommendations")}
+                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-800">
+                {t("For you")}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -588,6 +745,374 @@ const Dashboard = () => {
     </div>
   );
 
+  // Function to handle responding to an inquiry (for agents)
+  const handleRespondToInquiry = async (inquiryId, response) => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+
+      await axios.post(
+        `http://127.0.0.1:8000/api/properties/inquiries/${inquiryId}/respond/`,
+        { response },
+        { headers }
+      );
+
+      // Update the inquiries list to reflect the response
+      setInquiries(
+        inquiries.map(inquiry => 
+          inquiry.id === inquiryId 
+            ? { ...inquiry, response, status: 'responded' } 
+            : inquiry
+        )
+      );
+
+    } catch (err) {
+      console.error("Error responding to inquiry:", err);
+      setError(t("Failed to send response. Please try again."));
+    }
+  };
+
+  // Render inquiries differently based on user role
+  const renderInquiries = () => {
+    const isAgent = user?.profile?.role === 'agent';
+
+    return (
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          {isAgent ? t("Property Inquiries") : t("My Inquiries")}
+        </h2>
+
+        {inquiries.length > 0 ? (
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <ul className="divide-y divide-gray-200">
+              {inquiries.map((inquiry) => (
+                <li key={inquiry.id} className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+                    <div className="mb-4 md:mb-0 md:mr-6 flex-grow">
+                      <div className="flex items-center mb-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          inquiry.status === 'pending' 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : inquiry.status === 'responded' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {inquiry.status === 'pending' 
+                            ? t('Pending') 
+                            : inquiry.status === 'responded' 
+                              ? t('Responded') 
+                              : t('Closed')}
+                        </span>
+                        <span className="ml-2 text-sm text-gray-500">
+                          {new Date(inquiry.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h3 className="text-lg font-medium text-gray-900 mb-1">
+                        {isAgent 
+                          ? t("From: {{name}}", { name: inquiry.tenant.username }) 
+                          : t("Property: {{title}}", { title: inquiry.house.title })}
+                      </h3>
+
+                      <p className="text-sm text-gray-500 mb-3">
+                        {isAgent 
+                          ? t("Regarding: {{title}}", { title: inquiry.house.title }) 
+                          : t("Agent: {{name}}", { name: inquiry.agent_name })}
+                      </p>
+
+                      <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                        <p className="text-sm text-gray-700">{inquiry.message}</p>
+                      </div>
+
+                      {inquiry.response && (
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-sm font-medium text-gray-900 mb-1">{t("Response:")}</p>
+                          <p className="text-sm text-gray-700">{inquiry.response}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* For agents: show respond button if inquiry is pending */}
+                    {isAgent && inquiry.status === 'pending' && (
+                      <div className="flex-shrink-0 w-full md:w-auto">
+                        <button
+                          onClick={() => {
+                            const response = prompt(t("Enter your response:"));
+                            if (response) {
+                              handleRespondToInquiry(inquiry.id, response);
+                            }
+                          }}
+                          className="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          {t("Respond")}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* For tenants: show view property button */}
+                    {!isAgent && (
+                      <div className="flex-shrink-0">
+                        <Link
+                          to={`/properties/${inquiry.house.id}`}
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          {t("View Property")}
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              {isAgent 
+                ? t("No inquiries about your properties") 
+                : t("You haven't made any inquiries yet")}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {isAgent 
+                ? t("When tenants inquire about your properties, they will appear here.") 
+                : t("Find a property you're interested in and contact the agent.")}
+            </p>
+            {!isAgent && (
+              <div className="mt-6">
+                <Link
+                  to="/properties"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {t("Browse Properties")}
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render recommended properties for tenants
+  const renderRecommendations = () => {
+    return (
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          {t("Recommended Properties")}
+        </h2>
+
+        {recommendations.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {recommendations.map((property) => (
+              <div
+                key={property.id}
+                className="bg-white overflow-hidden shadow-md rounded-lg"
+              >
+                <div className="relative h-48 w-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                  {property.images && property.images.length > 0 ? (
+                    <img
+                      src={property.images[0].image}
+                      alt={property.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-400">{t("No image available")}</span>
+                  )}
+                  <button
+                    onClick={() => {
+                      // Add to favorites functionality
+                      axios.post(
+                        "http://127.0.0.1:8000/api/properties/favorites/",
+                        { house_id: property.id },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                          },
+                        }
+                      )
+                      .then(() => {
+                        // Add to local favorites state
+                        setFavorites([...favorites, { house: property, id: Date.now() }]);
+                      })
+                      .catch(err => {
+                        console.error("Error adding to favorites:", err);
+                      });
+                    }}
+                    className="absolute top-2 right-2 p-1 rounded-full bg-white shadow-md hover:bg-red-100"
+                  >
+                    <svg
+                      className="h-5 w-5 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {property.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    {property.location}
+                  </p>
+
+                  <p className="mt-2 text-lg font-bold text-blue-600">
+                    ${property.price.toLocaleString()}
+                    {property.property_status === "for_rent" && (
+                      <span className="text-sm font-normal text-gray-500">
+                        /month
+                      </span>
+                    )}
+                  </p>
+
+                  <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                      </svg>
+                      <span>
+                        {property.area} {t("sqft")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10 0a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
+                      </svg>
+                      <span>
+                        {property.bedrooms} {t("bd")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M9 16a1 1 0 102 0v-1a1 1 0 00-1-1H5a2 2 0 01-2-2V7a2 2 0 012-2h1.93a.5.5 0 000-1H5a3 3 0 00-3 3v5a3 3 0 003 3h5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>
+                        {property.bathrooms} {t("ba")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex space-x-2">
+                    <Link
+                      to={`/properties/${property.id}`}
+                      className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      {t("View Details")}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        // Create inquiry functionality
+                        const message = prompt(t("Enter your inquiry message:"));
+                        if (message) {
+                          axios.post(
+                            "http://127.0.0.1:8000/api/properties/inquiries/",
+                            { 
+                              house_id: property.id,
+                              message 
+                            },
+                            {
+                              headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                              },
+                            }
+                          )
+                          .then(response => {
+                            // Add to local inquiries state
+                            setInquiries([...inquiries, response.data]);
+                            alert(t("Inquiry sent successfully!"));
+                          })
+                          .catch(err => {
+                            console.error("Error sending inquiry:", err);
+                            alert(t("Failed to send inquiry. Please try again."));
+                          });
+                        }
+                      }}
+                      className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      {t("Contact Agent")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              {t("No recommendations yet")}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {t("Add some properties to your favorites to get personalized recommendations.")}
+            </p>
+            <div className="mt-6">
+              <Link
+                to="/properties"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {t("Browse Properties")}
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -597,13 +1122,123 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-12">
+    <div className="bg-gray-100 min-h-screen pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t("Dashboard")}</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {t("Welcome back")}, {user?.first_name || t("User")}!
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{t("Dashboard")}</h1>
+              <p className="mt-1 text-sm text-gray-500">
+                {t("Welcome back")}, {user?.first_name || t("User")}!
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              {user?.profile?.role === 'agent' ? (
+                <Link
+                  to="/add-property"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  {t("Add New Property")}
+                </Link>
+              ) : (
+                <Link
+                  to="/properties"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                  {t("Browse Properties")}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Role-specific welcome message */}
+          <div className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-md overflow-hidden">
+            <div className="px-6 py-5 sm:flex sm:items-start sm:justify-between">
+              <div className="sm:flex sm:items-center">
+                <div className="sm:flex-shrink-0">
+                  {user?.profile?.role === 'agent' ? (
+                    <svg className="h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  ) : (
+                    <svg className="h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                  )}
+                </div>
+                <div className="mt-3 sm:mt-0 sm:ml-4">
+                  <h3 className="text-lg font-medium text-white">
+                    {user?.profile?.role === 'agent' 
+                      ? t("Welcome to your Agent Dashboard, {{name}}!", { name: user?.first_name || t("Agent") }) 
+                      : t("Welcome to your Tenant Dashboard, {{name}}!", { name: user?.first_name || t("Tenant") })}
+                  </h3>
+                  <div className="mt-1 text-sm text-blue-100">
+                    <p>
+                      {user?.profile?.role === 'agent' 
+                        ? t("Manage your properties, respond to inquiries, and grow your real estate business.") 
+                        : t("Find your dream home, save favorites, and contact agents about properties you're interested in.")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tips section */}
+            <div className="border-t border-blue-400 bg-blue-50 px-6 py-4">
+              <h4 className="text-sm font-medium text-blue-800">{t("Quick Tips")}</h4>
+              <ul className="mt-2 text-sm text-blue-700 space-y-1">
+                {user?.profile?.role === 'agent' ? (
+                  <>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Add high-quality photos to make your listings stand out")}
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Respond quickly to inquiries to improve your response rate")}
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Keep your property details complete and up-to-date")}
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Save properties to your favorites for easy access later")}
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Use filters to narrow down properties that match your needs")}
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      {t("Check your recommendations for properties similar to your favorites")}
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
         </div>
 
         {error && (
@@ -627,32 +1262,76 @@ const Dashboard = () => {
             >
               {t("Overview")}
             </button>
-            <button
-              onClick={() => setActiveTab("properties")}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeTab === "properties"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {t("My Properties")}
-            </button>
-            <button
-              onClick={() => setActiveTab("favorites")}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeTab === "favorites"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {t("Favorites")}
-            </button>
+
+            {/* Show different tabs based on user role */}
+            {user?.profile?.role === 'agent' ? (
+              // Agent-specific tabs
+              <>
+                <button
+                  onClick={() => setActiveTab("properties")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "properties"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {t("My Properties")}
+                </button>
+                <button
+                  onClick={() => setActiveTab("inquiries")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "inquiries"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {t("Inquiries")}
+                </button>
+              </>
+            ) : (
+              // Tenant-specific tabs
+              <>
+                <button
+                  onClick={() => setActiveTab("favorites")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "favorites"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {t("Favorites")}
+                </button>
+                <button
+                  onClick={() => setActiveTab("inquiries")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "inquiries"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {t("My Inquiries")}
+                </button>
+                <button
+                  onClick={() => setActiveTab("recommendations")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "recommendations"
+                      ? "border-b-2 border-blue-500 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {t("Recommendations")}
+                </button>
+              </>
+            )}
           </nav>
         </div>
 
+        {/* Render different content based on active tab */}
         {activeTab === "overview" && renderOverview()}
-        {activeTab === "properties" && renderProperties()}
-        {activeTab === "favorites" && renderFavorites()}
+        {activeTab === "properties" && user?.profile?.role === 'agent' && renderProperties()}
+        {activeTab === "favorites" && user?.profile?.role === 'tenant' && renderFavorites()}
+        {activeTab === "inquiries" && renderInquiries()}
+        {activeTab === "recommendations" && user?.profile?.role === 'tenant' && renderRecommendations()}
       </div>
     </div>
   );

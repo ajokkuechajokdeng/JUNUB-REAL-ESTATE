@@ -22,26 +22,93 @@ api.interceptors.request.use(
   }
 );
 
+// Create a variable to track if we're currently refreshing the token
+let isRefreshing = false;
+let failedQueue = [];
+
+// Process the failed queue
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 // Add a response interceptor to handle common errors
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    // Handle 401 Unauthorized errors (token expired)
-    if (error.response && error.response.status === 401) {
-      // Clear local storage and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If the error is 401 and we haven't already tried to refresh the token
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If we're already refreshing, add this request to the queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/users/token/refresh/',
+          { refresh: refreshToken }
+        );
+
+        const { access } = response.data;
+        localStorage.setItem('token', access);
+
+        // Update the authorization header for the original request
+        originalRequest.headers['Authorization'] = `Bearer ${access}`;
+
+        // Process any requests that were queued while refreshing
+        processQueue(null, access);
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        // If refresh fails, clear tokens and redirect to login
+        processQueue(refreshError, null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
+
     return Promise.reject(error);
   }
 );
 
 // Auth API
 export const authAPI = {
-  login: (email, password) => api.post('/users/token/', { username: email, password }),
+  login: (email, password) => {
+    return api.post('/users/token/', { username: email, password });
+  },
   register: (userData) => api.post('/users/register/', userData),
   getProfile: () => api.get('/users/me/'),
   updateProfile: (profileData) => api.put('/users/update_profile/', profileData),
@@ -58,6 +125,36 @@ export const propertiesAPI = {
   deleteProperty: (id) => api.delete(`/properties/listings/${id}/`),
   uploadImage: (id, imageData) => api.post(`/properties/listings/${id}/images/`, imageData),
   contactAgent: (id, contactData) => api.post(`/properties/listings/${id}/contact/`, contactData),
+};
+
+// Agent-specific API
+export const agentAPI = {
+  // Agent profile management
+  getMyProfile: () => api.get('/properties/agents/my_profile/'),
+  updateProfile: (profileData) => api.put('/properties/agents/my_profile/', profileData),
+
+  // Agent property management
+  getMyProperties: () => api.get('/properties/listings/agent_properties/'),
+  getPropertyInquiries: () => api.get('/properties/inquiries/'),
+  respondToInquiry: (inquiryId, response) => api.post(`/properties/inquiries/${inquiryId}/respond/`, { response }),
+
+  // Analytics and performance
+  getPerformanceStats: () => api.get('/properties/agents/performance/'),
+};
+
+// Tenant-specific API
+export const tenantAPI = {
+  // Favorites management
+  getFavorites: () => api.get('/properties/favorites/'),
+  addFavorite: (houseId) => api.post('/properties/favorites/', { house_id: houseId }),
+  removeFavorite: (favoriteId) => api.delete(`/properties/favorites/${favoriteId}/`),
+  getRecommendations: () => api.get('/properties/favorites/recommended/'),
+
+  // Inquiries management
+  getMyInquiries: () => api.get('/properties/inquiries/'),
+  createInquiry: (houseId, message) => api.post('/properties/inquiries/', { house_id: houseId, message }),
+  updateInquiry: (inquiryId, data) => api.put(`/properties/inquiries/${inquiryId}/`, data),
+  deleteInquiry: (inquiryId) => api.delete(`/properties/inquiries/${inquiryId}/`),
 };
 
 export default api;

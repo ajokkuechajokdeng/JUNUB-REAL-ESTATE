@@ -5,61 +5,63 @@ import { AuthContext } from '../../context/AuthContext';
 
 const Login = () => {
   const { t } = useTranslation();
-  const { login, error, isAuthenticated } = useContext(AuthContext);
+  const { login, error, isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   useEffect(() => {
-    // Redirect if already authenticated
+    // Redirect if already authenticated based on role
     if (isAuthenticated()) {
-      navigate('/dashboard');
+      if (user?.profile?.role === 'agent') {
+        navigate('/dashboard');
+      } else {
+        navigate('/my-rentals');
+      }
     }
-  }, [isAuthenticated, navigate]);
-  
+  }, [isAuthenticated, navigate, user]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-  
+
   const validate = () => {
     const errors = {};
-    
+
     if (!formData.email) {
       errors.email = t('Email is required');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = t('Email is invalid');
     }
-    
+
     if (!formData.password) {
       errors.password = t('Password is required');
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validate()) {
       setIsSubmitting(true);
       const success = await login(formData.email, formData.password);
       setIsSubmitting(false);
-      
-      if (success) {
-        navigate('/dashboard');
-      }
+
+      // No need to navigate here, AuthContext.login will handle redirection based on role
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -81,7 +83,7 @@ const Login = () => {
               <span className="block sm:inline">{error}</span>
             </div>
           )}
-          
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -128,6 +130,7 @@ const Login = () => {
                 )}
               </div>
             </div>
+
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">

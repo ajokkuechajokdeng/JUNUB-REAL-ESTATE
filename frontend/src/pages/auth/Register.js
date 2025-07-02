@@ -16,7 +16,10 @@ const Register = () => {
     password: '',
     password2: '',
     phone_number: '',
-    address: ''
+    address: '',
+    role: 'tenant',
+    company: '',
+    bio: ''
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -105,9 +108,7 @@ const Register = () => {
 
       if (registerSuccess) {
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        // No need to navigate here, AuthContext.register will handle redirection based on role
       }
     }
   };
@@ -253,6 +254,126 @@ const Register = () => {
                 />
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('Register as')}
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                    formData.role === 'tenant' 
+                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onClick={() => setFormData({...formData, role: 'tenant'})}
+                >
+                  <div className="flex items-start">
+                    <div className={`flex-shrink-0 h-6 w-6 mt-0.5 ${
+                      formData.role === 'tenant' ? 'text-blue-600' : 'text-gray-400'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className={`text-sm font-medium ${
+                        formData.role === 'tenant' ? 'text-blue-900' : 'text-gray-900'
+                      }`}>
+                        {t('Tenant')}
+                      </h3>
+                      <p className={`text-xs mt-1 ${
+                        formData.role === 'tenant' ? 'text-blue-700' : 'text-gray-500'
+                      }`}>
+                        {t('Browse properties, save favorites, and contact agents about listings')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                    formData.role === 'agent' 
+                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onClick={() => setFormData({...formData, role: 'agent'})}
+                >
+                  <div className="flex items-start">
+                    <div className={`flex-shrink-0 h-6 w-6 mt-0.5 ${
+                      formData.role === 'agent' ? 'text-blue-600' : 'text-gray-400'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className={`text-sm font-medium ${
+                        formData.role === 'agent' ? 'text-blue-900' : 'text-gray-900'
+                      }`}>
+                        {t('Agent')}
+                      </h3>
+                      <p className={`text-xs mt-1 ${
+                        formData.role === 'agent' ? 'text-blue-700' : 'text-gray-500'
+                      }`}>
+                        {t('List and manage properties, respond to inquiries, and grow your business')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hidden select for form submission */}
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="sr-only"
+                aria-hidden="true"
+              >
+                <option value="tenant">{t('Tenant')}</option>
+                <option value="agent">{t('Agent')}</option>
+              </select>
+            </div>
+
+            {formData.role === 'agent' && (
+              <>
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+                    {t('Company')}
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="company"
+                      name="company"
+                      type="text"
+                      value={formData.company}
+                      onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder={t('Your real estate company or agency')}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                    {t('Professional Bio')}
+                  </label>
+                  <div className="mt-1">
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={3}
+                      value={formData.bio}
+                      onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder={t('Tell potential clients about your experience and expertise')}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
