@@ -425,8 +425,10 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                  isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                className={`w-full flex justify-center px-2 py-1 rounded text-xs font-medium ${
+                  isSubmitting 
+                    ? 'opacity-70 cursor-not-allowed bg-blue-600 text-white' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
                 }`}
               >
                 {isSubmitting ? t('Creating account...') : t('Create account')}
