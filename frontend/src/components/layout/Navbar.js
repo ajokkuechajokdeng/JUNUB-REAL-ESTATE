@@ -4,11 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
 
 const Navbar = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, isAuthenticated, logout } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
 
   // Add scroll effect for navbar
   useEffect(() => {
@@ -90,6 +94,30 @@ const Navbar = () => {
 
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Language switcher for desktop */}
+            <div className="flex items-center space-x-2 mr-4">
+              <button 
+                onClick={() => changeLanguage('en')} 
+                className={`px-2 py-1 rounded text-xs font-medium ${
+                  i18n.language === 'en' 
+                    ? (scrolled ? 'bg-blue-600 text-white' : 'bg-white text-blue-600') 
+                    : (scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-blue-700')
+                }`}
+              >
+                English
+              </button>
+              <button 
+                onClick={() => changeLanguage('ar')} 
+                className={`px-2 py-1 rounded text-xs font-medium ${
+                  i18n.language === 'ar' 
+                    ? (scrolled ? 'bg-blue-600 text-white' : 'bg-white text-blue-600') 
+                    : (scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-blue-700')
+                }`}
+              >
+                العربية
+              </button>
+            </div>
+
             {isAuthenticated() ? (
               <>
                 <Link 
@@ -221,6 +249,32 @@ const Navbar = () => {
           <div className={`px-2 pt-2 pb-3 space-y-1 sm:px-3 rounded-md ${
             scrolled ? 'bg-white text-gray-800 shadow-lg' : 'bg-blue-600 text-white'
           }`}>
+            {/* Language switcher for mobile */}
+            <div className="flex items-center space-x-2 px-3 py-2 border-b border-gray-200 mb-2">
+              <span className="text-sm font-medium mr-2">
+                {t('Language')}:
+              </span>
+              <button 
+                onClick={() => changeLanguage('en')} 
+                className={`px-2 py-1 rounded text-xs font-medium ${
+                  i18n.language === 'en' 
+                    ? (scrolled ? 'bg-blue-600 text-white' : 'bg-white text-blue-600') 
+                    : (scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-blue-700')
+                }`}
+              >
+                English
+              </button>
+              <button 
+                onClick={() => changeLanguage('ar')} 
+                className={`px-2 py-1 rounded text-xs font-medium ${
+                  i18n.language === 'ar' 
+                    ? (scrolled ? 'bg-blue-600 text-white' : 'bg-white text-blue-600') 
+                    : (scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-blue-700')
+                }`}
+              >
+                العربية
+              </button>
+            </div>
             {isAuthenticated() && (
               <div className={`px-3 py-2 text-sm ${
                 scrolled ? 'text-gray-500 border-b border-gray-200' : 'text-blue-200 border-b border-blue-500'

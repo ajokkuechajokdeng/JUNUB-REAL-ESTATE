@@ -223,7 +223,7 @@ const Home = () => {
                       ${property.price.toLocaleString()}
                       {property.property_status === "for_rent" && (
                         <span className="text-sm font-normal text-gray-500">
-                          /month
+                          /{t("month")}
                         </span>
                       )}
                     </p>
