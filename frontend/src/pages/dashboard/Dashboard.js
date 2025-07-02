@@ -81,7 +81,9 @@ const Dashboard = () => {
         setError(null);
       } catch (err) {
         console.error("Error fetching user data:", err);
-        setError(t("Failed to load your data. Please try again."));
+        // Show backend error message if available
+        let backendMsg = err?.response?.data?.detail || err?.response?.data?.message;
+        setError(backendMsg ? t(backendMsg) : t("Failed to load your data. Please try again."));
       } finally {
         setLoading(false);
       }
@@ -299,7 +301,7 @@ const Dashboard = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10"
                   />
                 </svg>
               </div>
@@ -352,7 +354,7 @@ const Dashboard = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
                         />
                       </svg>
                     </div>
@@ -489,7 +491,7 @@ const Dashboard = () => {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
                             />
                           </svg>
                         </div>
@@ -567,7 +569,7 @@ const Dashboard = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
             />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">
@@ -610,106 +612,110 @@ const Dashboard = () => {
 
       {favorites.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {favorites.map((property) => (
-            <div
-              key={property.id}
-              className="bg-white overflow-hidden shadow-md rounded-lg"
-            >
-              <div className="relative h-48 w-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">{t("No image available")}</span>
-                <button
-                  onClick={() => handleRemoveFavorite(property.id)}
-                  className="absolute top-2 right-2 p-1 rounded-full bg-white shadow-md hover:bg-red-100"
-                >
-                  <svg
-                    className="h-5 w-5 text-red-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+          {favorites.map((property) => {
+            // Support both { ...property fields } and { house: { ...property fields } }
+            const prop = property.house ? property.house : property;
+            return (
+              <div
+                key={property.id}
+                className="bg-white overflow-hidden shadow-md rounded-lg"
+              >
+                <div className="relative h-48 w-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">{t("No image available")}</span>
+                  <button
+                    onClick={() => handleRemoveFavorite(property.id)}
+                    className="absolute top-2 right-2 p-1 rounded-full bg-white shadow-md hover:bg-red-100"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {property.title}
-                </h3>
-
-                <p className="mt-1 text-sm text-gray-500">
-                  {property.location}
-                </p>
-
-                <p className="mt-2 text-lg font-bold text-blue-600">
-                  ${property.price.toLocaleString()}
-                  {property.property_status === "for_rent" && (
-                    <span className="text-sm font-normal text-gray-500">
-                      /month
-                    </span>
-                  )}
-                </p>
-
-                <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center">
                     <svg
-                      className="h-4 w-4 mr-1"
+                      className="h-5 w-5 text-red-500"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
-                      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                    </svg>
-                    <span>
-                      {property.area} {t("sqft")}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <svg
-                      className="h-4 w-4 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10 0a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
-                    </svg>
-                    <span>
-                      {property.bedrooms} {t("bd")}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <svg
-                      className="h-4 w-4 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       <path
                         fillRule="evenodd"
-                        d="M9 16a1 1 0 102 0v-1a1 1 0 00-1-1H5a2 2 0 01-2-2V7a2 2 0 012-2h1.93a.5.5 0 000-1H5a3 3 0 00-3 3v5a3 3 0 003 3h5z"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span>
-                      {property.bathrooms} {t("ba")}
-                    </span>
-                  </div>
+                  </button>
                 </div>
 
-                <div className="mt-4">
-                  <Link
-                    to={`/properties/${property.id}`}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    {t("View Details")}
-                  </Link>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {prop.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    {prop.location}
+                  </p>
+
+                  <p className="mt-2 text-lg font-bold text-blue-600">
+                    {typeof prop.price === 'number' ? `$${prop.price.toLocaleString()}` : t("N/A")}
+                    {prop.property_status === "for_rent" && (
+                      <span className="text-sm font-normal text-gray-500">
+                        /month
+                      </span>
+                    )}
+                  </p>
+
+                  <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                      </svg>
+                      <span>
+                        {prop.area} {t("sqft")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10 0a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
+                      </svg>
+                      <span>
+                        {prop.bedrooms} {t("bd")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center">
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M9 16a1 1 0 102 0v-1a1 1 0 00-1-1H5a2 2 0 01-2-2V7a2 2 0 012-2h1.93a.5.5 0 000-1H5a3 3 0 00-3 3v5a3 3 0 003 3h5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>
+                        {prop.bathrooms} {t("ba")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <Link
+                      to={`/properties/${prop.id}`}
+                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      {t("View Details")}
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="bg-white shadow-md rounded-lg p-6 text-center">
@@ -1090,7 +1096,7 @@ const Dashboard = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10"
               />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900">
@@ -1138,7 +1144,7 @@ const Dashboard = () => {
                   to="/add-property"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
                   {t("Add New Property")}
@@ -1148,7 +1154,7 @@ const Dashboard = () => {
                   to="/properties"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                   </svg>
                   {t("Browse Properties")}
@@ -1168,7 +1174,7 @@ const Dashboard = () => {
                     </svg>
                   ) : (
                     <svg className="h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                     </svg>
                   )}
                 </div>

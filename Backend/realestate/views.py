@@ -126,7 +126,7 @@ class HouseViewSet(viewsets.ModelViewSet):
     def agent_properties(self, request):
         """
         Return properties associated with the current user as an agent.
-        Only works if the user has an agent profile.
+        Auto-create agent profile if missing.
         """
         user = request.user
         import logging
@@ -148,15 +148,17 @@ class HouseViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-            # Try to get the agent profile
-            try:
-                agent = Agent.objects.get(user=user)
-            except Agent.DoesNotExist:
-                logger.error(f"User {user.username} has agent role but no agent profile")
-                return Response(
-                    {"detail": "You have an agent role but no agent profile. Please contact an administrator."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            # Auto-create agent profile if missing
+            from .models import Agent
+            agent, created = Agent.objects.get_or_create(
+                user=user,
+                defaults={
+                    'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                    'phone': getattr(user.profile, 'phone_number', '') or ''
+                }
+            )
+            if created:
+                logger.info(f"Auto-created agent profile for user {user.username}")
 
             # Get the properties and return them
             houses = House.objects.filter(agent=agent)
