@@ -28,8 +28,11 @@ const EditProperty = () => {
   const [existingImages, setExistingImages] = useState([]);
 
   useEffect(() => {
-    propertiesAPI.getPropertyTypes().then((res) => setPropertyTypes(res.data.results || res.data));
-    propertiesAPI.getProperty(id)
+    propertiesAPI
+      .getPropertyTypes()
+      .then((res) => setPropertyTypes(res.data.results || res.data));
+    propertiesAPI
+      .getProperty(id)
       .then((res) => {
         setForm({
           ...res.data,

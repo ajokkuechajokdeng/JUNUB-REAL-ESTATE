@@ -2,12 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
+import { propertiesAPI } from "../services/api";
 
 const Home = () => {
   const { t } = useTranslation();
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    property_type: "",
+    min_price: "",
+    max_price: "",
+    bedrooms: "",
+    bathrooms: "",
+    search: "",
+  });
+  const [propertyTypes, setPropertyTypes] = useState([]);
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
@@ -30,8 +40,45 @@ const Home = () => {
       }
     };
 
+    const fetchPropertyTypes = async () => {
+      try {
+        const res = await propertiesAPI.getPropertyTypes();
+        setPropertyTypes(
+          Array.isArray(res.data.results) ? res.data.results : res.data
+        );
+      } catch (err) {
+        setPropertyTypes([]);
+      }
+    };
+
     fetchFeaturedProperties();
+    fetchPropertyTypes();
   }, [t]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) params.append(key, value);
+    });
+    window.location.href = `/properties?${params.toString()}`;
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      property_type: "",
+      min_price: "",
+      max_price: "",
+      bedrooms: "",
+      bathrooms: "",
+      search: "",
+    });
+  };
 
   return (
     <div className="bg-white">
@@ -60,72 +107,97 @@ const Home = () => {
                 <h3 className="text-lg font-medium text-gray-900">
                   {t("Quick Search")}
                 </h3>
-                <form className="mt-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
-                  <div>
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="mt-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4"
+                >
+                  <div className="col-span-1 sm:col-span-2">
                     <label
-                      htmlFor="location"
-                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="search"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      {t("Location")}
+                      {t("Search")}
                     </label>
-                    <select
-                      id="location"
-                      name="location"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                    >
-                      <option value="">{t("All Locations")}</option>
-                      <option value="juba">Juba</option>
-                      <option value="wau">Wau</option>
-                      <option value="malakal">Malakal</option>
-                    </select>
+                    <input
+                      type="text"
+                      name="search"
+                      id="search"
+                      value={filters.search}
+                      onChange={handleFilterChange}
+                      placeholder={t("Search by location, property name, etc.")}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+                    />
                   </div>
                   <div>
                     <label
                       htmlFor="property_type"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       {t("Property Type")}
                     </label>
                     <select
                       id="property_type"
                       name="property_type"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                      value={filters.property_type}
+                      onChange={handleFilterChange}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
                     >
                       <option value="">{t("All Types")}</option>
-                      <option value="apartment">{t("Apartment")}</option>
-                      <option value="house">{t("House")}</option>
-                      <option value="villa">{t("Villa")}</option>
-                      <option value="land">{t("Land")}</option>
+                      {Array.isArray(propertyTypes) &&
+                        propertyTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name}
+                          </option>
+                        ))}
                     </select>
                   </div>
                   <div>
                     <label
-                      htmlFor="status"
-                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="min_price"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      {t("Status")}
+                      {t("Min Price")}
                     </label>
-                    <select
-                      id="status"
-                      name="status"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                    <input
+                      type="number"
+                      name="min_price"
+                      id="min_price"
+                      value={filters.min_price}
+                      onChange={handleFilterChange}
+                      placeholder={t("Min Price")}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="max_price"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      <option value="">{t("All")}</option>
-                      <option value="for_rent">{t("For Rent")}</option>
-                      <option value="for_sale">{t("For Sale")}</option>
-                    </select>
+                      {t("Max Price")}
+                    </label>
+                    <input
+                      type="number"
+                      name="max_price"
+                      id="max_price"
+                      value={filters.max_price}
+                      onChange={handleFilterChange}
+                      placeholder={t("Max Price")}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+                    />
                   </div>
                   <div>
                     <label
                       htmlFor="bedrooms"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       {t("Bedrooms")}
                     </label>
                     <select
                       id="bedrooms"
                       name="bedrooms"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                      value={filters.bedrooms}
+                      onChange={handleFilterChange}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
                     >
                       <option value="">{t("Any")}</option>
                       <option value="1">1+</option>
@@ -135,13 +207,41 @@ const Home = () => {
                       <option value="5">5+</option>
                     </select>
                   </div>
-                  <div className="sm:col-span-2">
-                    <Link
-                      to="/properties"
-                      className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  <div>
+                    <label
+                      htmlFor="bathrooms"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      {t("Search Properties")}
-                    </Link>
+                      {t("Bathrooms")}
+                    </label>
+                    <select
+                      id="bathrooms"
+                      name="bathrooms"
+                      value={filters.bathrooms}
+                      onChange={handleFilterChange}
+                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2"
+                    >
+                      <option value="">{t("Any")}</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      {t("Clear Filters")}
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      {t("Search")}
+                    </button>
                   </div>
                 </form>
               </div>

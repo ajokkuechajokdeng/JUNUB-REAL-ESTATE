@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { propertiesAPI } from "../../services/api";
 
@@ -17,6 +17,7 @@ const PropertyList = () => {
     search: "",
   });
   const [propertyTypes, setPropertyTypes] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchPropertyTypes = async () => {
@@ -60,7 +61,18 @@ const PropertyList = () => {
     fetchProperties();
   }, [filters, t]);
 
-
+  // On mount, parse query params and set filters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const newFilters = { ...filters };
+    if (params.get("location")) newFilters.search = params.get("location");
+    if (params.get("property_type"))
+      newFilters.property_type = params.get("property_type");
+    if (params.get("status")) newFilters.property_status = params.get("status");
+    if (params.get("bedrooms")) newFilters.bedrooms = params.get("bedrooms");
+    setFilters(newFilters);
+    // eslint-disable-next-line
+  }, [location.search]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
