@@ -10,6 +10,7 @@ import Profile from './pages/auth/Profile';
 import PropertyList from './pages/properties/PropertyList';
 import PropertyDetail from './pages/properties/PropertyDetail';
 import AddProperty from './pages/properties/AddProperty';
+import EditProperty from './pages/properties/EditProperty';
 import Dashboard from './pages/dashboard/Dashboard';
 import MyRentals from './pages/dashboard/MyRentals';
 import MyProperties from './pages/dashboard/MyProperties';
@@ -63,6 +64,11 @@ function App() {
             <Route path="/add-property" element={
               <RoleBasedRoute allowedRoles="agent" redirectTo="/dashboard">
                 <AddProperty />
+              </RoleBasedRoute>
+            } />
+            <Route path="/properties/edit/:id" element={
+              <RoleBasedRoute allowedRoles="agent" redirectTo="/dashboard">
+                <EditProperty />
               </RoleBasedRoute>
             } />
             <Route path="*" element={<NotFound />} />
