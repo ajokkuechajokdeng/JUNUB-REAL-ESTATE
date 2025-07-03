@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
+import { propertiesAPI } from "../../services/api";
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -19,6 +20,8 @@ const Dashboard = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -104,6 +107,41 @@ const Dashboard = () => {
     } catch (err) {
       console.error("Error removing favorite:", err);
     }
+  };
+
+  // Handle property deletion for agents
+  const handleDeleteProperty = async (id) => {
+    if (!window.confirm(t("Are you sure you want to delete this property?"))) return;
+    try {
+      await propertiesAPI.deleteProperty(id);
+      setUserProperties((prev) => prev.filter((property) => property.id !== id));
+    } catch (err) {
+      setError(t("Failed to delete property. Please try again."));
+    }
+  };
+
+  const handleDeleteClick = (property) => {
+    setPropertyToDelete(property);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!propertyToDelete) return;
+    try {
+      await propertiesAPI.deleteProperty(propertyToDelete.id);
+      setUserProperties((prev) => prev.filter((p) => p.id !== propertyToDelete.id));
+      setShowDeleteModal(false);
+      setPropertyToDelete(null);
+    } catch (err) {
+      setError(t("Failed to delete property. Please try again."));
+      setShowDeleteModal(false);
+      setPropertyToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setPropertyToDelete(null);
   };
 
   const renderOverview = () => (
@@ -418,7 +456,7 @@ const Dashboard = () => {
         </h2>
         {user?.profile?.role === 'agent' && (
           <Link
-            to="/properties/add"
+            to="/add-property"
             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             title={t("Add a new property listing")}
           >
@@ -550,7 +588,7 @@ const Dashboard = () => {
                       >
                         {t("Edit")}
                       </Link>
-                      <button className="text-red-600 hover:text-red-900">
+                      <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteClick(property)}>
                         {t("Delete")}
                       </button>
                     </td>
@@ -1144,7 +1182,7 @@ const Dashboard = () => {
             <div className="mt-4 md:mt-0">
               {user?.profile?.role === 'agent' && (
                 <Link
-                  to="/properties/add"
+                  to="/add-property"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
                   title={t("Add a new property listing")}
                 >
@@ -1343,6 +1381,30 @@ const Dashboard = () => {
         {activeTab === "inquiries" && renderInquiries()}
         {activeTab === "recommendations" && user?.profile?.role === 'tenant' && renderRecommendations()}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("Delete Property")}</h3>
+            <p className="mb-6 text-gray-700">{t("Are you sure you want to delete the property '{{title}}'? This action cannot be undone.", { title: propertyToDelete?.title })}</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleCancelDelete}
+                className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                {t("Cancel")}
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+              >
+                {t("Delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
