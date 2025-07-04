@@ -61,17 +61,18 @@ const PropertyList = () => {
     fetchProperties();
   }, [filters, t]);
 
-  // On mount, parse query params and set filters
+  // On mount and whenever the query string changes, parse query params and set filters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const newFilters = { ...filters };
-    if (params.get("location")) newFilters.search = params.get("location");
-    if (params.get("property_type"))
-      newFilters.property_type = params.get("property_type");
-    if (params.get("status")) newFilters.property_status = params.get("status");
-    if (params.get("bedrooms")) newFilters.bedrooms = params.get("bedrooms");
-    setFilters(newFilters);
-    // eslint-disable-next-line
+    setFilters((prev) => ({
+      ...prev,
+      property_type: params.get("property_type") || "",
+      min_price: params.get("min_price") || "",
+      max_price: params.get("max_price") || "",
+      bedrooms: params.get("bedrooms") || "",
+      bathrooms: params.get("bathrooms") || "",
+      search: params.get("search") || "",
+    }));
   }, [location.search]);
 
   const handleFilterChange = (e) => {
