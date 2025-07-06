@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import { propertiesAPI } from "../services/api";
+import { propertiesAPI, tenantAPI } from "../services/api";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -21,6 +21,12 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [inquiryProperty, setInquiryProperty] = useState(null);
+  const [inquiryMessage, setInquiryMessage] = useState("");
+  const [inquiryLoading, setInquiryLoading] = useState(false);
+  const [inquirySuccess, setInquirySuccess] = useState("");
+  const [inquiryError, setInquiryError] = useState("");
   const navigate = useNavigate();
   const debounceTimeout = useRef(null);
   const isFirstRender = useRef(true);
@@ -131,6 +137,54 @@ const Home = () => {
 
   // Helper to check if any search filter is active
   const isSearchActive = Object.values(filters).some((v) => v && v !== "");
+
+  const handleOpenInquiry = (property) => {
+    setInquiryProperty(property);
+    setInquiryMessage("");
+    setInquirySuccess("");
+    setInquiryError("");
+    setShowInquiryModal(true);
+  };
+
+  const handleCloseInquiry = () => {
+    setShowInquiryModal(false);
+    setInquiryProperty(null);
+    setInquiryMessage("");
+    setInquirySuccess("");
+    setInquiryError("");
+  };
+
+  const handleSendInquiry = async (e) => {
+    e.preventDefault();
+    if (!inquiryMessage.trim()) {
+      setInquiryError(t("Please enter a message."));
+      return;
+    }
+    setInquiryLoading(true);
+    setInquiryError("");
+    setInquirySuccess("");
+    try {
+      await tenantAPI.createInquiry(inquiryProperty.id, inquiryMessage);
+      setInquirySuccess(t("Inquiry sent successfully!"));
+      setInquiryMessage("");
+    } catch (err) {
+      let errorMsg = t("Failed to send inquiry. Please try again.");
+      if (err.response && err.response.data) {
+        if (typeof err.response.data === "string") {
+          errorMsg = err.response.data;
+        } else if (err.response.data.detail) {
+          errorMsg = err.response.data.detail;
+        } else if (typeof err.response.data === "object") {
+          errorMsg = Object.entries(err.response.data)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+            .join(" | ");
+        }
+      }
+      setInquiryError(errorMsg);
+    } finally {
+      setInquiryLoading(false);
+    }
+  };
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -387,6 +441,15 @@ const Home = () => {
                           </span>
                         </div>
                       </div>
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenInquiry(property)}
+                          className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 bg-white rounded-md shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
+                        >
+                          {t("Contact Agent")}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -541,6 +604,43 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Inquiry Modal */}
+      {showInquiryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+              onClick={handleCloseInquiry}
+              aria-label={t("Close")}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">{t("Contact Agent for")}: {inquiryProperty?.title}</h3>
+            <form onSubmit={handleSendInquiry} className="space-y-4">
+              <textarea
+                className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
+                rows={4}
+                placeholder={t("Type your message to the agent...")}
+                value={inquiryMessage}
+                onChange={e => setInquiryMessage(e.target.value)}
+                required
+              />
+              {inquiryError && <div className="text-red-600 text-sm">{inquiryError}</div>}
+              {inquirySuccess && <div className="text-green-600 text-sm">{inquirySuccess}</div>}
+              <button
+                type="submit"
+                disabled={inquiryLoading}
+                className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {inquiryLoading ? t("Sending...") : t("Send Message")}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

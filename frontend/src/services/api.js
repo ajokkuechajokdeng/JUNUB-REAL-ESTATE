@@ -124,7 +124,6 @@ export const propertiesAPI = {
   updateProperty: (id, propertyData) => api.put(`/properties/listings/${id}/`, propertyData),
   deleteProperty: (id) => api.delete(`/properties/listings/${id}/`),
   uploadImage: (id, imageData) => api.post(`/properties/listings/${id}/images/`, imageData),
-  contactAgent: (id, contactData) => api.post(`/properties/listings/${id}/contact/`, contactData),
 };
 
 // Agent-specific API

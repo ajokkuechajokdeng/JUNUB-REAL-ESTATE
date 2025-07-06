@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { propertiesAPI } from "../../services/api";
+import { propertiesAPI, tenantAPI } from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 
 const PropertyDetail = () => {
@@ -90,12 +90,15 @@ const PropertyDetail = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        await propertiesAPI.contactAgent(id, contactForm);
+        await tenantAPI.createInquiry(id, contactForm.message);
         setSubmitSuccess(true);
         setFormErrors({});
       } catch (err) {
         setFormErrors({
-          submit: t("Failed to send message. Please try again."),
+          submit:
+            err.response && err.response.data && err.response.data.detail
+              ? err.response.data.detail
+              : t("Failed to send message. Please try again."),
         });
       } finally {
         setIsSubmitting(false);
