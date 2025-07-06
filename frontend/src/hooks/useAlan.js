@@ -2,57 +2,37 @@ import { useEffect, useRef } from 'react';
 import alanBtn from '@alan-ai/alan-sdk-web';
 import { useNavigate } from 'react-router-dom';
 
-const useAlan = () => {
+const alanKey = 'df5167b2fbe12b401ca13987314095892e956eca572e1d8b807a3e2338fdd0dc/stage'; // Replace with your Alan Studio key
+
+const useAlan = (onFilterCommand) => {
   const navigate = useNavigate();
   const alanInstance = useRef(null);
 
   useEffect(() => {
     alanInstance.current = alanBtn({
-      key: 'df5167b2fbe12b401ca13987314095892e956eca572e1d8b807a3e2338fdd0dc/stage',
-      onConnectionStatus: (status) => {
-        console.log('Alan AI Status:', status);
-      },
+      key: alanKey,
       onCommand: (commandData) => {
         const { command, data } = commandData;
-        
+
+        // Home page filter commands
+        if (
+          command === 'filter_properties' ||
+          command === 'clear_filters' ||
+          command === 'submit_search'
+        ) {
+          if (typeof onFilterCommand === 'function') {
+            onFilterCommand(command, data);
+            return;
+          }
+        }
+
+        // Navigation and other commands
         switch (command) {
           case 'navigate':
             navigate(data.route);
             break;
           case 'search_properties':
             navigate('/properties');
-            break;
-          case 'search_by_type':
-            const typeQuery = data.property_type ? `?property_type=${data.property_type}` : '';
-            navigate(`/properties${typeQuery}`);
-            break;
-          case 'search_by_price':
-            const priceQuery = data.min_price || data.max_price ? 
-              `?${data.min_price ? `min_price=${data.min_price}` : ''}${data.min_price && data.max_price ? '&' : ''}${data.max_price ? `max_price=${data.max_price}` : ''}` : '';
-            navigate(`/properties${priceQuery}`);
-            break;
-          case 'search_by_location':
-            const locationQuery = data.location ? `?search=${encodeURIComponent(data.location)}` : '';
-            navigate(`/properties${locationQuery}`);
-            break;
-          case 'search_by_bedrooms':
-            const bedroomQuery = data.bedrooms ? `?bedrooms=${data.bedrooms}` : '';
-            navigate(`/properties${bedroomQuery}`);
-            break;
-          case 'filter_properties':
-            let filterQuery = '?';
-            const filters = [];
-            if (data.property_type) filters.push(`property_type=${data.property_type}`);
-            if (data.min_price) filters.push(`min_price=${data.min_price}`);
-            if (data.max_price) filters.push(`max_price=${data.max_price}`);
-            if (data.bedrooms) filters.push(`bedrooms=${data.bedrooms}`);
-            if (data.bathrooms) filters.push(`bathrooms=${data.bathrooms}`);
-            if (data.search) filters.push(`search=${encodeURIComponent(data.search)}`);
-            filterQuery += filters.join('&');
-            navigate(`/properties${filterQuery}`);
-            break;
-          case 'go_home':
-            navigate('/');
             break;
           case 'login':
             navigate('/login');
@@ -70,17 +50,22 @@ const useAlan = () => {
             navigate('/my-rentals');
             break;
           default:
-            console.log('Unknown command:', command);
+            // Unknown command
         }
       }
     });
 
     return () => {
-      if (alanInstance.current) {
-        alanInstance.current.remove();
+      try {
+        if (alanInstance.current && typeof alanInstance.current.remove === 'function') {
+          alanInstance.current.remove();
+        }
+      } catch (e) {
+        // Suppress Alan SDK internal errors on cleanup
       }
+      alanInstance.current = null;
     };
-  }, [navigate])
+  }, [navigate, onFilterCommand]);
 };
 
 export default useAlan;

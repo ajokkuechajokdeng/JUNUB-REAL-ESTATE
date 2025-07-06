@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { propertiesAPI, tenantAPI } from "../services/api";
+import useAlan from "../hooks/useAlan";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -27,25 +28,78 @@ const Home = () => {
   const [inquiryLoading, setInquiryLoading] = useState(false);
   const [inquirySuccess, setInquirySuccess] = useState("");
   const [inquiryError, setInquiryError] = useState("");
-  const navigate = useNavigate();
   const debounceTimeout = useRef(null);
-  const isFirstRender = useRef(true);
+
+  // Helper to check if any search filter is active
+  const isSearchActive = Object.values(filters).some((v) => v && v !== "");
+
+  // 1. Define handleSearchSubmit FIRST
+  const handleSearchSubmit = useCallback(
+    async (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      setSearchLoading(true);
+      setSearchError(null);
+      try {
+        const params = {};
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) params[key] = value;
+        });
+        const res = await propertiesAPI.getProperties(params);
+        setSearchResults(res.data.results || res.data);
+      } catch (err) {
+        setSearchError(t("Failed to load properties. Please try again."));
+      } finally {
+        setSearchLoading(false);
+      }
+    },
+    [filters, t]
+  );
+
+  // 2. Alan AI: handle filter commands
+  const handleAlanFilterCommand = useCallback(
+    (command, data) => {
+      if (command === "filter_properties") {
+        setFilters((prev) => ({
+          ...prev,
+          ...(data.property_type && { property_type: data.property_type }),
+          ...(data.min_price && { min_price: data.min_price }),
+          ...(data.max_price && { max_price: data.max_price }),
+          ...(data.search && { search: data.search }),
+        }));
+      }
+      if (command === "clear_filters") {
+        setFilters({
+          property_type: "",
+          min_price: "",
+          max_price: "",
+          bedrooms: "",
+          bathrooms: "",
+          search: "",
+        });
+        setSearchResults([]);
+      }
+      if (command === "submit_search") {
+        handleSearchSubmit({ preventDefault: () => {} });
+      }
+    },
+    [handleSearchSubmit]
+  );
+
+  useAlan(handleAlanFilterCommand);
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
       setLoading(true);
       try {
-        // Fetch featured properties from backend (e.g., filter by a 'featured' flag or just get latest)
         const res = await axios.get(
           "http://127.0.0.1:8000/api/properties/listings/",
           {
             params: { ordering: "-created_at", page_size: 6 },
           }
         );
-        setFeaturedProperties(res.data.results || res.data); // If paginated, use .results
+        setFeaturedProperties(res.data.results || res.data);
         setError(null);
       } catch (err) {
-        console.error("Error fetching featured properties:", err);
         setError(t("Failed to load featured properties. Please try again."));
       } finally {
         setLoading(false);
@@ -74,7 +128,6 @@ const Home = () => {
 
   // Debounced auto-search effect
   useEffect(() => {
-    // Only trigger auto-search if any filter is active
     if (!isSearchActive) {
       setSearchResults([]);
       setSearchError(null);
@@ -97,31 +150,12 @@ const Home = () => {
       } finally {
         setSearchLoading(false);
       }
-    }, 500); // 500ms debounce
+    }, 500);
     return () => {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
-
-  // Keep handleSearchSubmit for accessibility (Enter key, button)
-  const handleSearchSubmit = async (e) => {
-    e.preventDefault();
-    setSearchLoading(true);
-    setSearchError(null);
-    try {
-      const params = {};
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params[key] = value;
-      });
-      const res = await propertiesAPI.getProperties(params);
-      setSearchResults(res.data.results || res.data);
-    } catch (err) {
-      setSearchError(t("Failed to load properties. Please try again."));
-    } finally {
-      setSearchLoading(false);
-    }
-  };
 
   const clearFilters = () => {
     setFilters({
@@ -134,9 +168,6 @@ const Home = () => {
     });
     setSearchResults([]);
   };
-
-  // Helper to check if any search filter is active
-  const isSearchActive = Object.values(filters).some((v) => v && v !== "");
 
   const handleOpenInquiry = (property) => {
     setInquiryProperty(property);
