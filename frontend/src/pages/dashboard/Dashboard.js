@@ -22,6 +22,9 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [respondingInquiryId, setRespondingInquiryId] = useState(null);
+  const [responseText, setResponseText] = useState("");
+  const [responding, setResponding] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -142,6 +145,24 @@ const Dashboard = () => {
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setPropertyToDelete(null);
+  };
+
+  const handleOpenRespondModal = (inquiryId) => {
+    setRespondingInquiryId(inquiryId);
+    setResponseText("");
+    setResponding(true);
+  };
+
+  const handleCloseRespondModal = () => {
+    setRespondingInquiryId(null);
+    setResponseText("");
+    setResponding(false);
+  };
+
+  const handleSubmitResponse = async () => {
+    if (!responseText.trim()) return;
+    await handleRespondToInquiry(respondingInquiryId, responseText);
+    handleCloseRespondModal();
   };
 
   const renderOverview = () => (
@@ -884,12 +905,7 @@ const Dashboard = () => {
                     {isAgent && inquiry.status === 'pending' && (
                       <div className="flex-shrink-0 w-full md:w-auto">
                         <button
-                          onClick={() => {
-                            const response = prompt(t("Enter your response:"));
-                            if (response) {
-                              handleRespondToInquiry(inquiry.id, response);
-                            }
-                          }}
+                          onClick={() => handleOpenRespondModal(inquiry.id)}
                           className="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                           {t("Respond")}
@@ -925,7 +941,7 @@ const Dashboard = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10"
               />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900">
@@ -948,6 +964,38 @@ const Dashboard = () => {
                 </Link>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Respond Modal */}
+        {responding && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("Respond to Inquiry")}</h3>
+              <textarea
+                className="w-full border border-gray-300 rounded-md p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={4}
+                value={responseText}
+                onChange={e => setResponseText(e.target.value)}
+                placeholder={t("Type your response here...")}
+                autoFocus
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={handleCloseRespondModal}
+                  className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+                >
+                  {t("Cancel")}
+                </button>
+                <button
+                  onClick={handleSubmitResponse}
+                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                  disabled={!responseText.trim()}
+                >
+                  {t("Send Response")}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
