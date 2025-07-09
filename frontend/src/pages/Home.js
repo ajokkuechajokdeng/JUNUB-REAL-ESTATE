@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { propertiesAPI, tenantAPI } from "../services/api";
 import useAlan from "../hooks/useAlan";
+import { AuthContext } from "../context/AuthContext";
 
 const Home = () => {
   const { t } = useTranslation();
+  const { user, isAuthenticated } = useContext(AuthContext);
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +30,7 @@ const Home = () => {
   const [inquiryLoading, setInquiryLoading] = useState(false);
   const [inquirySuccess, setInquirySuccess] = useState("");
   const [inquiryError, setInquiryError] = useState("");
+  const [favorites, setFavorites] = useState([]);
   const debounceTimeout = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,9 +122,21 @@ const Home = () => {
       }
     };
 
+    const fetchFavorites = async () => {
+      if (isAuthenticated() && user?.profile?.role === 'tenant') {
+        try {
+          const res = await tenantAPI.getFavorites();
+          setFavorites(res.data.results || res.data);
+        } catch (err) {
+          console.error("Error fetching favorites:", err);
+        }
+      }
+    };
+
     fetchFeaturedProperties();
     fetchPropertyTypes();
-  }, [t]);
+    fetchFavorites();
+  }, [t, isAuthenticated, user]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -217,6 +232,32 @@ const Home = () => {
     } finally {
       setInquiryLoading(false);
     }
+  };
+
+  const handleFavoriteToggle = async (propertyId) => {
+    if (!isAuthenticated() || user?.profile?.role !== 'tenant') {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const isFavorite = favorites.some(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
+      
+      if (isFavorite) {
+        const favoriteToRemove = favorites.find(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
+        await tenantAPI.removeFavorite(favoriteToRemove.id);
+        setFavorites(favorites.filter(fav => fav.id !== favoriteToRemove.id));
+      } else {
+        const res = await tenantAPI.addFavorite(propertyId);
+        setFavorites([...favorites, res.data]);
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+    }
+  };
+
+  const isFavorite = (propertyId) => {
+    return favorites.some(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
   };
 
   return (
@@ -434,9 +475,35 @@ const Home = () => {
                     </div>
 
                     <div className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
-                        {property.title}
-                      </h3>
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 flex-1">
+                          {property.title}
+                        </h3>
+                        {isAuthenticated() && user?.profile?.role === 'tenant' && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleFavoriteToggle(property.id);
+                            }}
+                            className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                            aria-label={isFavorite(property.id) ? t('Remove from favorites') : t('Add to favorites')}
+                          >
+                            <svg
+                              className={`h-6 w-6 ${isFavorite(property.id) ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-500'}`}
+                              fill={isFavorite(property.id) ? 'currentColor' : 'none'}
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                              />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
 
                       <p className="mt-2 text-sm text-gray-500">
                         {property.location}
