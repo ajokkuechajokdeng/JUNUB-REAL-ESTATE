@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
@@ -7,6 +7,8 @@ import { AuthContext } from '../../context/AuthContext';
 const MyRentals = () => {
   const { t } = useTranslation();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [favorites, setFavorites] = useState([]);
   const [inquiries, setInquiries] = useState([]);
@@ -361,6 +363,28 @@ const MyRentals = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen py-12">
+      {/* Back Arrow */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-20 left-4 z-50 bg-white rounded-full shadow-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          aria-label="Go back"
+        >
+          <svg
+            className="h-6 w-6 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">{t('My Rentals')}</h1>

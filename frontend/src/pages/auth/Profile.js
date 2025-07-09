@@ -1,10 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
 
 const Profile = () => {
   const { t } = useTranslation();
   const { user, updateProfile, changePassword, error } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const [profileData, setProfileData] = useState({
     first_name: '',
@@ -146,6 +149,28 @@ const Profile = () => {
   
   return (
     <div className="bg-gray-100 min-h-screen py-12">
+      {/* Back Arrow */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-20 left-4 z-50 bg-white rounded-full shadow-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          aria-label="Go back"
+        >
+          <svg
+            className="h-6 w-6 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div className="p-6 bg-white border-b border-gray-200">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
@@ -8,6 +8,8 @@ import { propertiesAPI } from "../../services/api";
 const Dashboard = () => {
   const { t } = useTranslation();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Debug: Log user object when component mounts
   console.log("Dashboard mounted, user:", user);
@@ -167,6 +169,28 @@ const Dashboard = () => {
 
   const renderOverview = () => (
     <div>
+      {/* Back Arrow */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-20 left-4 z-50 bg-white rounded-full shadow-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          aria-label="Go back"
+        >
+          <svg
+            className="h-6 w-6 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
         {t("Dashboard Overview")}
       </h2>
