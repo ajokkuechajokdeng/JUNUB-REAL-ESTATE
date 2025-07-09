@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { propertiesAPI, tenantAPI } from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
@@ -8,6 +8,8 @@ const PropertyDetail = () => {
   const { id } = useParams();
   const { t } = useTranslation();
   const { isAuthenticated, user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -158,7 +160,30 @@ const PropertyDetail = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-12">
+    <div className="bg-gray-100 min-h-screen pt-24 pb-12">
+      {/* Consistent Back Arrow Button */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-4 left-4 z-50 bg-white rounded-full shadow p-2 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label="Go back"
+        >
+          <svg
+            className="h-6 w-6 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
         <nav className="flex mb-6" aria-label="Breadcrumb">

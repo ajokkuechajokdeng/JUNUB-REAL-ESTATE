@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { propertiesAPI } from "../../services/api";
 
@@ -7,6 +7,7 @@ const EditProperty = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -94,6 +95,28 @@ const EditProperty = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen pt-24 pb-12">
+      {/* Consistent Back Arrow Button */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-4 left-4 z-50 bg-white rounded-full shadow p-2 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label="Go back"
+        >
+          <svg
+            className="h-6 w-6 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
           {t("Edit Property")}

@@ -130,67 +130,7 @@ const Navbar = () => {
                 >
                   {t('Dashboard')}
                 </Link>
-                <Link 
-                  to="/properties" 
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    isActive('/properties') 
-                      ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                      : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                  }`}
-                >
-                  {t('Properties')}
-                </Link>
 
-                {/* Show 'My Properties' and 'Add Property' for agents, 'My Rentals' for tenants */}
-                {user?.profile?.role === 'agent' && (
-                  <>
-                    <Link 
-                      to="/my-properties" 
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                        isActive('/my-properties') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('My Properties')}
-                    </Link>
-                    <Link 
-                      to="/add-property" 
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                        isActive('/add-property') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('Add Property')}
-                    </Link>
-                  </>
-                )}
-
-                {user?.profile?.role === 'tenant' && (
-                  <>
-                    <Link 
-                      to="/my-rentals" 
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                        isActive('/my-rentals') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('My Rentals')}
-                    </Link>
-                    <Link 
-                      to="/favorites" 
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                        isActive('/favorites') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('Favorites')}
-                    </Link>
-                  </>
-                )}
 
                 <div className="relative group ml-2">
                   <button className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
@@ -295,67 +235,7 @@ const Navbar = () => {
                 >
                   {t('Dashboard')}
                 </Link>
-                <Link 
-                  to="/properties" 
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/properties') 
-                      ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                      : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                  }`}
-                >
-                  {t('Properties')}
-                </Link>
 
-                {/* Show 'My Properties' and 'Add Property' for agents, 'My Rentals' for tenants */}
-                {user?.profile?.role === 'agent' && (
-                  <>
-                    <Link 
-                      to="/my-properties" 
-                      className={`block px-3 py-2 rounded-md text-base font-medium ${
-                        isActive('/my-properties') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('My Properties')}
-                    </Link>
-                    <Link 
-                      to="/add-property" 
-                      className={`block px-3 py-2 rounded-md text-base font-medium ${
-                        isActive('/add-property') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('Add Property')}
-                    </Link>
-                  </>
-                )}
-
-                {user?.profile?.role === 'tenant' && (
-                  <>
-                    <Link 
-                      to="/my-rentals" 
-                      className={`block px-3 py-2 rounded-md text-base font-medium ${
-                        isActive('/my-rentals') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('My Rentals')}
-                    </Link>
-                    <Link 
-                      to="/favorites" 
-                      className={`block px-3 py-2 rounded-md text-base font-medium ${
-                        isActive('/favorites') 
-                          ? (scrolled ? 'bg-blue-100 text-blue-700' : 'bg-blue-700 text-white') 
-                          : (scrolled ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' : 'text-white hover:bg-blue-700')
-                      }`}
-                    >
-                      {t('Favorites')}
-                    </Link>
-                  </>
-                )}
 
                 <div className={`${scrolled ? 'border-t border-gray-200 mt-2 pt-2' : 'border-t border-blue-500 mt-2 pt-2'}`}>
                   <Link 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { propertiesAPI, tenantAPI } from "../services/api";
@@ -29,6 +29,8 @@ const Home = () => {
   const [inquirySuccess, setInquirySuccess] = useState("");
   const [inquiryError, setInquiryError] = useState("");
   const debounceTimeout = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Helper to check if any search filter is active
   const isSearchActive = Object.values(filters).some((v) => v && v !== "");
@@ -218,9 +220,21 @@ const Home = () => {
   };
 
   return (
-    <main className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-100 min-h-screen">
+      {/* Consistent Back Arrow Button */}
+      {location.pathname !== "/" && (
+        <button
+          onClick={() => navigate(-1)}
+          className="fixed top-4 left-4 z-50 bg-white rounded-full shadow p-2 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label="Go back"
+        >
+          <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-700 to-blue-400 text-white">
+      <section className="relative bg-gradient-to-r from-blue-700 to-blue-400 text-white pt-20">
         <div className="absolute inset-0">
           <img
             className="w-full h-full object-cover opacity-40"
@@ -229,7 +243,7 @@ const Home = () => {
           />
           <div className="absolute inset-0 bg-blue-900 opacity-60"></div>
         </div>
-        <div className="relative max-w-4xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32 flex flex-col items-center justify-center text-center">
+        <div className="relative max-w-4xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 flex flex-col items-center justify-center text-center">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-lg">
             {t("Find Your Dream Home in South Sudan")}
           </h1>
@@ -242,7 +256,7 @@ const Home = () => {
       </section>
 
       {/* Search Section */}
-      <section className="relative z-10 -mt-20 max-w-2xl mx-auto px-4">
+      <section className="relative z-10 -mt-16 max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-blue-100">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t("Quick Property Search")}
@@ -607,8 +621,8 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-blue-700">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+      <section className="bg-blue-700 mt-0">
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">{t("Ready to find your dream home?")}</span>
             <span className="block text-blue-200">
@@ -672,7 +686,7 @@ const Home = () => {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 };
 
