@@ -87,13 +87,15 @@ WSGI_APPLICATION = "ajok_backend.wsgi.application"
 import os
 import dj_database_url
 
+db_from_env = dj_database_url.parse(os.environ.get("DATABASE_URL"), conn_max_age=600)
+
+# Patch the parameter
+db_from_env['OPTIONS'] = {'ssl_mode': 'REQUIRED'}
+
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': db_from_env
 }
+
 
 
 
