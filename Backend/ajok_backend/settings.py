@@ -181,7 +181,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
-    "junub-real-estate.onrender.com",
+    "https://junub-real-estate.onrender.com",
 ]
 
 REST_FRAMEWORK = {
