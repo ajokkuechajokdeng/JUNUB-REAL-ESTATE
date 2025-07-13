@@ -84,17 +84,36 @@ WSGI_APPLICATION = "ajok_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# import os
+# import dj_database_url
+
+# db_from_env = dj_database_url.parse(os.environ.get("DATABASE_URL"), conn_max_age=600)
+
+# # Patch the parameter
+# db_from_env['OPTIONS'] = {'ssl_mode': 'REQUIRED'}
+
+# DATABASES = {
+#     'default': db_from_env
+# }
+
+
+
 import os
-import dj_database_url
-
-db_from_env = dj_database_url.parse(os.environ.get("DATABASE_URL"), conn_max_age=600)
-
-# Patch the parameter
-db_from_env['OPTIONS'] = {'ssl_mode': 'REQUIRED'}
 
 DATABASES = {
-    'default': db_from_env
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+        'OPTIONS': {
+            'ssl': {'ssl-mode': os.environ.get('DB_SSL_MODE', 'REQUIRED')},
+        },
+    }
 }
+
 
 
 
