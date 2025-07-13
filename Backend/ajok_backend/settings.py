@@ -35,6 +35,12 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(
     ',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
 
+ALLOWED_HOSTS = [
+    "junub-real-estate.onrender.com",
+]
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
