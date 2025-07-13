@@ -40,35 +40,36 @@ const Dashboard = () => {
         console.log("Fetching data for user role:", user?.profile?.role);
 
         // Fetch different data based on user role
-        if (user?.profile?.role === 'tenant') {
+        if (user?.profile?.role === "tenant") {
           // For tenants: fetch favorites and recommendations
           const favoritesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/favorites/",
+            "https://junub-real-estate.onrender.com/api/properties/favorites/",
             { headers }
           );
           setFavorites(favoritesRes.data.results || favoritesRes.data);
 
           // Fetch recommended properties based on favorites
           const recommendationsRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/favorites/recommended/",
+            "https://junub-real-estate.onrender.com/api/properties/favorites/recommended/",
             { headers }
           );
-          setRecommendations(recommendationsRes.data.results || recommendationsRes.data);
+          setRecommendations(
+            recommendationsRes.data.results || recommendationsRes.data
+          );
 
           // Fetch tenant's inquiries
           const inquiriesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/inquiries/",
+            "https://junub-real-estate.onrender.com/api/properties/inquiries/",
             { headers }
           );
           setInquiries(inquiriesRes.data.results || inquiriesRes.data);
-        } 
-        else if (user?.profile?.role === 'agent') {
+        } else if (user?.profile?.role === "agent") {
           // Debug: Log that we're in the agent branch
           console.log("Fetching data for agent role");
 
           // For agents: fetch properties and inquiries
           const propertiesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/listings/agent_properties/",
+            "https://junub-real-estate.onrender.com/api/properties/listings/agent_properties/",
             { headers }
           );
           console.log("Agent properties:", propertiesRes.data);
@@ -76,7 +77,7 @@ const Dashboard = () => {
 
           // Fetch inquiries about agent's properties
           const inquiriesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/inquiries/",
+            "https://junub-real-estate.onrender.com/api/properties/inquiries/",
             { headers }
           );
           console.log("Agent inquiries:", inquiriesRes.data);
@@ -90,8 +91,13 @@ const Dashboard = () => {
       } catch (err) {
         console.error("Error fetching user data:", err);
         // Show backend error message if available
-        let backendMsg = err?.response?.data?.detail || err?.response?.data?.message;
-        setError(backendMsg ? t(backendMsg) : t("Failed to load your data. Please try again."));
+        let backendMsg =
+          err?.response?.data?.detail || err?.response?.data?.message;
+        setError(
+          backendMsg
+            ? t(backendMsg)
+            : t("Failed to load your data. Please try again.")
+        );
       } finally {
         setLoading(false);
       }
@@ -116,10 +122,13 @@ const Dashboard = () => {
 
   // Handle property deletion for agents
   const handleDeleteProperty = async (id) => {
-    if (!window.confirm(t("Are you sure you want to delete this property?"))) return;
+    if (!window.confirm(t("Are you sure you want to delete this property?")))
+      return;
     try {
       await propertiesAPI.deleteProperty(id);
-      setUserProperties((prev) => prev.filter((property) => property.id !== id));
+      setUserProperties((prev) =>
+        prev.filter((property) => property.id !== id)
+      );
     } catch (err) {
       setError(t("Failed to delete property. Please try again."));
     }
@@ -134,7 +143,9 @@ const Dashboard = () => {
     if (!propertyToDelete) return;
     try {
       await propertiesAPI.deleteProperty(propertyToDelete.id);
-      setUserProperties((prev) => prev.filter((p) => p.id !== propertyToDelete.id));
+      setUserProperties((prev) =>
+        prev.filter((p) => p.id !== propertyToDelete.id)
+      );
       setShowDeleteModal(false);
       setPropertyToDelete(null);
     } catch (err) {
@@ -197,7 +208,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* First card - role specific */}
-        {user?.profile?.role === 'agent' ? (
+        {user?.profile?.role === "agent" ? (
           <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-blue-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
@@ -228,8 +239,17 @@ const Dashboard = () => {
                 className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
               >
                 {t("Manage properties")}
-                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  className="ml-1 h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
               <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
@@ -268,8 +288,17 @@ const Dashboard = () => {
                 className="text-sm text-purple-600 hover:text-purple-800 flex items-center"
               >
                 {t("View favorites")}
-                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  className="ml-1 h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
               <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800">
@@ -299,7 +328,9 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">
-                {user?.profile?.role === 'agent' ? t("Property Inquiries") : t("My Inquiries")}
+                {user?.profile?.role === "agent"
+                  ? t("Property Inquiries")
+                  : t("My Inquiries")}
               </p>
               <p className="text-2xl font-semibold text-gray-900">
                 {inquiries.length}
@@ -311,19 +342,35 @@ const Dashboard = () => {
               onClick={() => setActiveTab("inquiries")}
               className="text-sm text-green-600 hover:text-green-800 flex items-center"
             >
-              {user?.profile?.role === 'agent' ? t("Manage inquiries") : t("View inquiries")}
-              <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              {user?.profile?.role === "agent"
+                ? t("Manage inquiries")
+                : t("View inquiries")}
+              <svg
+                className="ml-1 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
               </svg>
             </button>
             {inquiries.length > 0 && (
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                user?.profile?.role === 'agent' 
-                  ? 'bg-yellow-100 text-yellow-800' 
-                  : 'bg-green-100 text-green-800'
-              }`}>
-                {inquiries.filter(i => i.status === 'pending').length > 0 
-                  ? t("{{count}} pending", { count: inquiries.filter(i => i.status === 'pending').length }) 
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  user?.profile?.role === "agent"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-green-100 text-green-800"
+                }`}
+              >
+                {inquiries.filter((i) => i.status === "pending").length > 0
+                  ? t("{{count}} pending", {
+                      count: inquiries.filter((i) => i.status === "pending")
+                        .length,
+                    })
                   : t("All responded")}
               </span>
             )}
@@ -331,7 +378,7 @@ const Dashboard = () => {
         </div>
 
         {/* Third card - role specific */}
-        {user?.profile?.role === 'agent' ? (
+        {user?.profile?.role === "agent" ? (
           <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-amber-600 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-amber-100 text-amber-600 mr-4">
@@ -352,19 +399,26 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">{t("Performance")}</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {inquiries.length > 0 
-                    ? Math.round((inquiries.filter(i => i.status !== 'pending').length / inquiries.length) * 100) 
-                    : 0}%
+                  {inquiries.length > 0
+                    ? Math.round(
+                        (inquiries.filter((i) => i.status !== "pending")
+                          .length /
+                          inquiries.length) *
+                          100
+                      )
+                    : 0}
+                  %
                 </p>
               </div>
             </div>
             <div className="mt-4 flex justify-between items-center">
-              <div className="text-sm text-amber-600">
-                {t("Response rate")}
-              </div>
+              <div className="text-sm text-amber-600">{t("Response rate")}</div>
               <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800">
                 {user?.date_joined
-                  ? Math.floor((new Date() - new Date(user.date_joined)) / (1000 * 60 * 60 * 24))
+                  ? Math.floor(
+                      (new Date() - new Date(user.date_joined)) /
+                        (1000 * 60 * 60 * 24)
+                    )
                   : 0}{" "}
                 {t("days active")}
               </span>
@@ -401,8 +455,17 @@ const Dashboard = () => {
                 className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center"
               >
                 {t("View recommendations")}
-                <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  className="ml-1 h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
               <span className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-800">
@@ -499,7 +562,7 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold text-gray-900">
           {t("My Properties")}
         </h2>
-        {user?.profile?.role === 'agent' && (
+        {user?.profile?.role === "agent" && (
           <Link
             to="/add-property"
             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
@@ -633,7 +696,10 @@ const Dashboard = () => {
                       >
                         {t("Edit")}
                       </Link>
-                      <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteClick(property)}>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteClick(property)}
+                      >
                         {t("Delete")}
                       </button>
                     </td>
@@ -707,7 +773,9 @@ const Dashboard = () => {
                 className="bg-white overflow-hidden shadow-md rounded-lg"
               >
                 <div className="relative h-48 w-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">{t("No image available")}</span>
+                  <span className="text-gray-400">
+                    {t("No image available")}
+                  </span>
                   <button
                     onClick={() => handleRemoveFavorite(property.id)}
                     className="absolute top-2 right-2 p-1 rounded-full bg-white shadow-md hover:bg-red-100"
@@ -731,12 +799,12 @@ const Dashboard = () => {
                     {prop.title}
                   </h3>
 
-                  <p className="mt-1 text-sm text-gray-500">
-                    {prop.location}
-                  </p>
+                  <p className="mt-1 text-sm text-gray-500">{prop.location}</p>
 
                   <p className="mt-2 text-lg font-bold text-blue-600">
-                    {typeof prop.price === 'number' ? `$${prop.price.toLocaleString()}` : t("N/A")}
+                    {typeof prop.price === "number"
+                      ? `$${prop.price.toLocaleString()}`
+                      : t("N/A")}
                     {prop.property_status === "for_rent" && (
                       <span className="text-sm font-normal text-gray-500">
                         /month
@@ -845,20 +913,19 @@ const Dashboard = () => {
       };
 
       await axios.post(
-        `http://127.0.0.1:8000/api/properties/inquiries/${inquiryId}/respond/`,
+        `https://junub-real-estate.onrender.com/api/properties/inquiries/${inquiryId}/respond/`,
         { response },
         { headers }
       );
 
       // Update the inquiries list to reflect the response
       setInquiries(
-        inquiries.map(inquiry => 
-          inquiry.id === inquiryId 
-            ? { ...inquiry, response, status: 'responded' } 
+        inquiries.map((inquiry) =>
+          inquiry.id === inquiryId
+            ? { ...inquiry, response, status: "responded" }
             : inquiry
         )
       );
-
     } catch (err) {
       console.error("Error responding to inquiry:", err);
       setError(t("Failed to send response. Please try again."));
@@ -867,7 +934,7 @@ const Dashboard = () => {
 
   // Render inquiries differently based on user role
   const renderInquiries = () => {
-    const isAgent = user?.profile?.role === 'agent';
+    const isAgent = user?.profile?.role === "agent";
 
     return (
       <div>
@@ -883,18 +950,20 @@ const Dashboard = () => {
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between">
                     <div className="mb-4 md:mb-0 md:mr-6 flex-grow">
                       <div className="flex items-center mb-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          inquiry.status === 'pending' 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : inquiry.status === 'responded' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {inquiry.status === 'pending' 
-                            ? t('Pending') 
-                            : inquiry.status === 'responded' 
-                              ? t('Responded') 
-                              : t('Closed')}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            inquiry.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : inquiry.status === "responded"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {inquiry.status === "pending"
+                            ? t("Pending")
+                            : inquiry.status === "responded"
+                            ? t("Responded")
+                            : t("Closed")}
                         </span>
                         <span className="ml-2 text-sm text-gray-500">
                           {new Date(inquiry.created_at).toLocaleDateString()}
@@ -902,31 +971,43 @@ const Dashboard = () => {
                       </div>
 
                       <h3 className="text-lg font-medium text-gray-900 mb-1">
-                        {isAgent 
-                          ? t("From: {{name}}", { name: inquiry.tenant.username }) 
-                          : t("Property: {{title}}", { title: inquiry.house.title })}
+                        {isAgent
+                          ? t("From: {{name}}", {
+                              name: inquiry.tenant.username,
+                            })
+                          : t("Property: {{title}}", {
+                              title: inquiry.house.title,
+                            })}
                       </h3>
 
                       <p className="text-sm text-gray-500 mb-3">
-                        {isAgent 
-                          ? t("Regarding: {{title}}", { title: inquiry.house.title }) 
+                        {isAgent
+                          ? t("Regarding: {{title}}", {
+                              title: inquiry.house.title,
+                            })
                           : t("Agent: {{name}}", { name: inquiry.agent_name })}
                       </p>
 
                       <div className="bg-gray-50 p-3 rounded-lg mb-3">
-                        <p className="text-sm text-gray-700">{inquiry.message}</p>
+                        <p className="text-sm text-gray-700">
+                          {inquiry.message}
+                        </p>
                       </div>
 
                       {inquiry.response && (
                         <div className="bg-blue-50 p-3 rounded-lg">
-                          <p className="text-sm font-medium text-gray-900 mb-1">{t("Response:")}</p>
-                          <p className="text-sm text-gray-700">{inquiry.response}</p>
+                          <p className="text-sm font-medium text-gray-900 mb-1">
+                            {t("Response:")}
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            {inquiry.response}
+                          </p>
                         </div>
                       )}
                     </div>
 
                     {/* For agents: show respond button if inquiry is pending */}
-                    {isAgent && inquiry.status === 'pending' && (
+                    {isAgent && inquiry.status === "pending" && (
                       <div className="flex-shrink-0 w-full md:w-auto">
                         <button
                           onClick={() => handleOpenRespondModal(inquiry.id)}
@@ -969,14 +1050,18 @@ const Dashboard = () => {
               />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900">
-              {isAgent 
-                ? t("No inquiries about your properties") 
+              {isAgent
+                ? t("No inquiries about your properties")
                 : t("You haven't made any inquiries yet")}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {isAgent 
-                ? t("When tenants inquire about your properties, they will appear here.") 
-                : t("Find a property you're interested in and contact the agent.")}
+              {isAgent
+                ? t(
+                    "When tenants inquire about your properties, they will appear here."
+                  )
+                : t(
+                    "Find a property you're interested in and contact the agent."
+                  )}
             </p>
             {!isAgent && (
               <div className="mt-6">
@@ -995,12 +1080,14 @@ const Dashboard = () => {
         {responding && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("Respond to Inquiry")}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t("Respond to Inquiry")}
+              </h3>
               <textarea
                 className="w-full border border-gray-300 rounded-md p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={4}
                 value={responseText}
-                onChange={e => setResponseText(e.target.value)}
+                onChange={(e) => setResponseText(e.target.value)}
                 placeholder={t("Type your response here...")}
                 autoFocus
               />
@@ -1049,27 +1136,35 @@ const Dashboard = () => {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-gray-400">{t("No image available")}</span>
+                    <span className="text-gray-400">
+                      {t("No image available")}
+                    </span>
                   )}
                   <button
                     onClick={() => {
                       // Add to favorites functionality
-                      axios.post(
-                        "http://127.0.0.1:8000/api/properties/favorites/",
-                        { house_id: property.id },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                          },
-                        }
-                      )
-                      .then(() => {
-                        // Add to local favorites state
-                        setFavorites([...favorites, { house: property, id: Date.now() }]);
-                      })
-                      .catch(err => {
-                        console.error("Error adding to favorites:", err);
-                      });
+                      axios
+                        .post(
+                          "https://junub-real-estate.onrender.com/api/properties/favorites/",
+                          { house_id: property.id },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                              )}`,
+                            },
+                          }
+                        )
+                        .then(() => {
+                          // Add to local favorites state
+                          setFavorites([
+                            ...favorites,
+                            { house: property, id: Date.now() },
+                          ]);
+                        })
+                        .catch((err) => {
+                          console.error("Error adding to favorites:", err);
+                        });
                     }}
                     className="absolute top-2 right-2 p-1 rounded-full bg-white shadow-md hover:bg-red-100"
                   >
@@ -1163,29 +1258,36 @@ const Dashboard = () => {
                     <button
                       onClick={() => {
                         // Create inquiry functionality
-                        const message = prompt(t("Enter your inquiry message:"));
+                        const message = prompt(
+                          t("Enter your inquiry message:")
+                        );
                         if (message) {
-                          axios.post(
-                            "http://127.0.0.1:8000/api/properties/inquiries/",
-                            { 
-                              house_id: property.id,
-                              message 
-                            },
-                            {
-                              headers: {
-                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                          axios
+                            .post(
+                              "https://junub-real-estate.onrender.com/api/properties/inquiries/",
+                              {
+                                house_id: property.id,
+                                message,
                               },
-                            }
-                          )
-                          .then(response => {
-                            // Add to local inquiries state
-                            setInquiries([...inquiries, response.data]);
-                            alert(t("Inquiry sent successfully!"));
-                          })
-                          .catch(err => {
-                            console.error("Error sending inquiry:", err);
-                            alert(t("Failed to send inquiry. Please try again."));
-                          });
+                              {
+                                headers: {
+                                  Authorization: `Bearer ${localStorage.getItem(
+                                    "token"
+                                  )}`,
+                                },
+                              }
+                            )
+                            .then((response) => {
+                              // Add to local inquiries state
+                              setInquiries([...inquiries, response.data]);
+                              alert(t("Inquiry sent successfully!"));
+                            })
+                            .catch((err) => {
+                              console.error("Error sending inquiry:", err);
+                              alert(
+                                t("Failed to send inquiry. Please try again.")
+                              );
+                            });
                         }
                       }}
                       className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -1216,7 +1318,9 @@ const Dashboard = () => {
               {t("No recommendations yet")}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {t("Add some properties to your favorites to get personalized recommendations.")}
+              {t(
+                "Add some properties to your favorites to get personalized recommendations."
+              )}
             </p>
             <div className="mt-6">
               <Link
@@ -1246,13 +1350,15 @@ const Dashboard = () => {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{t("Dashboard")}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {t("Dashboard")}
+              </h1>
               <p className="mt-1 text-sm text-gray-500">
                 {t("Welcome back")}, {user?.first_name || t("User")}!
               </p>
             </div>
             <div className="mt-4 md:mt-0">
-              {user?.profile?.role === 'agent' && (
+              {user?.profile?.role === "agent" && (
                 <Link
                   to="/add-property"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
@@ -1282,27 +1388,57 @@ const Dashboard = () => {
             <div className="px-6 py-5 sm:flex sm:items-start sm:justify-between">
               <div className="sm:flex sm:items-center">
                 <div className="sm:flex-shrink-0">
-                  {user?.profile?.role === 'agent' ? (
-                    <svg className="h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  {user?.profile?.role === "agent" ? (
+                    <svg
+                      className="h-12 w-12 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
                     </svg>
                   ) : (
-                    <svg className="h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                    <svg
+                      className="h-12 w-12 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                      />
                     </svg>
                   )}
                 </div>
                 <div className="mt-3 sm:mt-0 sm:ml-4">
                   <h3 className="text-lg font-medium text-white">
-                    {user?.profile?.role === 'agent' 
-                      ? t("Welcome to your Agent Dashboard, {{name}}!", { name: user?.first_name || t("Agent") }) 
-                      : t("Welcome to your Tenant Dashboard, {{name}}!", { name: user?.first_name || t("Tenant") })}
+                    {user?.profile?.role === "agent"
+                      ? t("Welcome to your Agent Dashboard, {{name}}!", {
+                          name: user?.first_name || t("Agent"),
+                        })
+                      : t("Welcome to your Tenant Dashboard, {{name}}!", {
+                          name: user?.first_name || t("Tenant"),
+                        })}
                   </h3>
                   <div className="mt-1 text-sm text-blue-100">
                     <p>
-                      {user?.profile?.role === 'agent' 
-                        ? t("Manage your properties, respond to inquiries, and grow your real estate business.") 
-                        : t("Find your dream home, save favorites, and contact agents about properties you're interested in.")}
+                      {user?.profile?.role === "agent"
+                        ? t(
+                            "Manage your properties, respond to inquiries, and grow your real estate business."
+                          )
+                        : t(
+                            "Find your dream home, save favorites, and contact agents about properties you're interested in."
+                          )}
                     </p>
                   </div>
                 </div>
@@ -1311,25 +1447,58 @@ const Dashboard = () => {
 
             {/* Tips section */}
             <div className="border-t border-blue-400 bg-blue-50 px-6 py-4">
-              <h4 className="text-sm font-medium text-blue-800">{t("Quick Tips")}</h4>
+              <h4 className="text-sm font-medium text-blue-800">
+                {t("Quick Tips")}
+              </h4>
               <ul className="mt-2 text-sm text-blue-700 space-y-1">
-                {user?.profile?.role === 'agent' ? (
+                {user?.profile?.role === "agent" ? (
                   <>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      {t("Add high-quality photos to make your listings stand out")}
+                      {t(
+                        "Add high-quality photos to make your listings stand out"
+                      )}
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      {t("Respond quickly to inquiries to improve your response rate")}
+                      {t(
+                        "Respond quickly to inquiries to improve your response rate"
+                      )}
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                       {t("Keep your property details complete and up-to-date")}
                     </li>
@@ -1337,22 +1506,55 @@ const Dashboard = () => {
                 ) : (
                   <>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      {t("Save properties to your favorites for easy access later")}
+                      {t(
+                        "Save properties to your favorites for easy access later"
+                      )}
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      {t("Use filters to narrow down properties that match your needs")}
+                      {t(
+                        "Use filters to narrow down properties that match your needs"
+                      )}
                     </li>
                     <li className="flex items-start">
-                      <svg className="h-4 w-4 text-blue-500 mt-0.5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="h-4 w-4 text-blue-500 mt-0.5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      {t("Check your recommendations for properties similar to your favorites")}
+                      {t(
+                        "Check your recommendations for properties similar to your favorites"
+                      )}
                     </li>
                   </>
                 )}
@@ -1384,7 +1586,7 @@ const Dashboard = () => {
             </button>
 
             {/* Show different tabs based on user role */}
-            {user?.profile?.role === 'agent' ? (
+            {user?.profile?.role === "agent" ? (
               // Agent-specific tabs
               <>
                 <button
@@ -1448,18 +1650,31 @@ const Dashboard = () => {
 
         {/* Render different content based on active tab */}
         {activeTab === "overview" && renderOverview()}
-        {activeTab === "properties" && user?.profile?.role === 'agent' && renderProperties()}
-        {activeTab === "favorites" && user?.profile?.role === 'tenant' && renderFavorites()}
+        {activeTab === "properties" &&
+          user?.profile?.role === "agent" &&
+          renderProperties()}
+        {activeTab === "favorites" &&
+          user?.profile?.role === "tenant" &&
+          renderFavorites()}
         {activeTab === "inquiries" && renderInquiries()}
-        {activeTab === "recommendations" && user?.profile?.role === 'tenant' && renderRecommendations()}
+        {activeTab === "recommendations" &&
+          user?.profile?.role === "tenant" &&
+          renderRecommendations()}
       </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("Delete Property")}</h3>
-            <p className="mb-6 text-gray-700">{t("Are you sure you want to delete the property '{{title}}'? This action cannot be undone.", { title: propertyToDelete?.title })}</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {t("Delete Property")}
+            </h3>
+            <p className="mb-6 text-gray-700">
+              {t(
+                "Are you sure you want to delete the property '{{title}}'? This action cannot be undone.",
+                { title: propertyToDelete?.title }
+              )}
+            </p>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={handleCancelDelete}

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -97,7 +103,7 @@ const Home = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/properties/listings/",
+          "https://junub-real-estate.onrender.com/api/properties/listings/",
           {
             params: { ordering: "-created_at", page_size: 6 },
           }
@@ -123,7 +129,7 @@ const Home = () => {
     };
 
     const fetchFavorites = async () => {
-      if (isAuthenticated() && user?.profile?.role === 'tenant') {
+      if (isAuthenticated() && user?.profile?.role === "tenant") {
         try {
           const res = await tenantAPI.getFavorites();
           setFavorites(res.data.results || res.data);
@@ -235,29 +241,35 @@ const Home = () => {
   };
 
   const handleFavoriteToggle = async (propertyId) => {
-    if (!isAuthenticated() || user?.profile?.role !== 'tenant') {
-      navigate('/login');
+    if (!isAuthenticated() || user?.profile?.role !== "tenant") {
+      navigate("/login");
       return;
     }
 
     try {
-      const isFavorite = favorites.some(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
-      
+      const isFavorite = favorites.some(
+        (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
+      );
+
       if (isFavorite) {
-        const favoriteToRemove = favorites.find(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
+        const favoriteToRemove = favorites.find(
+          (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
+        );
         await tenantAPI.removeFavorite(favoriteToRemove.id);
-        setFavorites(favorites.filter(fav => fav.id !== favoriteToRemove.id));
+        setFavorites(favorites.filter((fav) => fav.id !== favoriteToRemove.id));
       } else {
         const res = await tenantAPI.addFavorite(propertyId);
         setFavorites([...favorites, res.data]);
       }
     } catch (err) {
-      console.error('Error toggling favorite:', err);
+      console.error("Error toggling favorite:", err);
     }
   };
 
   const isFavorite = (propertyId) => {
-    return favorites.some(fav => fav.house?.id === propertyId || fav.house_id === propertyId);
+    return favorites.some(
+      (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
+    );
   };
 
   return (
@@ -339,7 +351,10 @@ const Home = () => {
             {/* Second row: Property Type and Budget */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="property_type" className="block text-base font-semibold text-gray-700 mb-1">
+                <label
+                  htmlFor="property_type"
+                  className="block text-base font-semibold text-gray-700 mb-1"
+                >
                   {t("Property Type")}
                 </label>
                 <select
@@ -360,7 +375,10 @@ const Home = () => {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label htmlFor="min_price" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="min_price"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     {t("Min Budget")}
                   </label>
                   <input
@@ -375,7 +393,10 @@ const Home = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="max_price" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="max_price"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     {t("Max Budget")}
                   </label>
                   <input
@@ -438,150 +459,168 @@ const Home = () => {
         ) : (
           <>
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {(isSearchActive ? searchResults : featuredProperties).map((property) => (
-                <Link
-                  key={property.id}
-                  to={`/properties/${property.id}`}
-                  className="group"
-                >
-                  <div className="bg-white overflow-hidden shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl">
-                    <div className="relative h-64 w-full overflow-hidden">
-                      {property.images && property.images.length > 0 ? (
-                        <img
-                          src={property.images[0].image}
-                          alt={property.title}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">
-                            {t("No image available")}
+              {(isSearchActive ? searchResults : featuredProperties).map(
+                (property) => (
+                  <Link
+                    key={property.id}
+                    to={`/properties/${property.id}`}
+                    className="group"
+                  >
+                    <div className="bg-white overflow-hidden shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl">
+                      <div className="relative h-64 w-full overflow-hidden">
+                        {property.images && property.images.length > 0 ? (
+                          <img
+                            src={property.images[0].image}
+                            alt={property.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400">
+                              {t("No image available")}
+                            </span>
+                          </div>
+                        )}
+                        <div className="absolute top-0 right-0 p-2">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${
+                              property.property_status === "for_sale"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {property.property_status === "for_sale"
+                              ? t("For Sale")
+                              : t("For Rent")}
                           </span>
                         </div>
-                      )}
-                      <div className="absolute top-0 right-0 p-2">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${
-                            property.property_status === "for_sale"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {property.property_status === "for_sale"
-                            ? t("For Sale")
-                            : t("For Rent")}
-                        </span>
                       </div>
-                    </div>
 
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 flex-1">
-                          {property.title}
-                        </h3>
-                        {isAuthenticated() && user?.profile?.role === 'tenant' && (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleFavoriteToggle(property.id);
-                            }}
-                            className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                            aria-label={isFavorite(property.id) ? t('Remove from favorites') : t('Add to favorites')}
-                          >
+                      <div className="p-6">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 flex-1">
+                            {property.title}
+                          </h3>
+                          {isAuthenticated() &&
+                            user?.profile?.role === "tenant" && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleFavoriteToggle(property.id);
+                                }}
+                                className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                                aria-label={
+                                  isFavorite(property.id)
+                                    ? t("Remove from favorites")
+                                    : t("Add to favorites")
+                                }
+                              >
+                                <svg
+                                  className={`h-6 w-6 ${
+                                    isFavorite(property.id)
+                                      ? "text-red-500 fill-current"
+                                      : "text-gray-400 hover:text-red-500"
+                                  }`}
+                                  fill={
+                                    isFavorite(property.id)
+                                      ? "currentColor"
+                                      : "none"
+                                  }
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                        </div>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                          {property.location}
+                        </p>
+
+                        <p className="mt-2 text-lg font-bold text-blue-600">
+                          ${property.price.toLocaleString()}
+                          {property.property_status === "for_rent" && (
+                            <span className="text-sm font-normal text-gray-500">
+                              /{t("month")}
+                            </span>
+                          )}
+                        </p>
+
+                        <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                          <div className="flex items-center">
                             <svg
-                              className={`h-6 w-6 ${isFavorite(property.id) ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-500'}`}
-                              fill={isFavorite(property.id) ? 'currentColor' : 'none'}
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
+                              className="h-4 w-4 mr-1"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
                             >
+                              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                            </svg>
+                            <span>
+                              {property.area} {t("sqft")}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center">
+                            <svg
+                              className="h-4 w-4 mr-1"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10 0a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
+                            </svg>
+                            <span>
+                              {property.bedrooms} {t("bd")}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center">
+                            <svg
+                              className="h-4 w-4 mr-1"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                               <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                fillRule="evenodd"
+                                d="M9 16a1 1 0 102 0v-1a1 1 0 00-1-1H5a2 2 0 01-2-2V7a2 2 0 012-2h1.93a.5.5 0 000-1H5a3 3 0 00-3 3v5a3 3 0 003 3h5z"
+                                clipRule="evenodd"
                               />
                             </svg>
+                            <span>
+                              {property.bathrooms} {t("ba")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenInquiry(property)}
+                            className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 bg-white rounded-md shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
+                          >
+                            {t("Contact Agent")}
                           </button>
-                        )}
-                      </div>
-
-                      <p className="mt-2 text-sm text-gray-500">
-                        {property.location}
-                      </p>
-
-                      <p className="mt-2 text-lg font-bold text-blue-600">
-                        ${property.price.toLocaleString()}
-                        {property.property_status === "for_rent" && (
-                          <span className="text-sm font-normal text-gray-500">
-                            /{t("month")}
-                          </span>
-                        )}
-                      </p>
-
-                      <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <svg
-                            className="h-4 w-4 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                          </svg>
-                          <span>
-                            {property.area} {t("sqft")}
-                          </span>
                         </div>
-
-                        <div className="flex items-center">
-                          <svg
-                            className="h-4 w-4 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10 0a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
-                          </svg>
-                          <span>
-                            {property.bedrooms} {t("bd")}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <svg
-                            className="h-4 w-4 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M9 16a1 1 0 102 0v-1a1 1 0 00-1-1H5a2 2 0 01-2-2V7a2 2 0 012-2h1.93a.5.5 0 000-1H5a3 3 0 00-3 3v5a3 3 0 003 3h5z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span>
-                            {property.bathrooms} {t("ba")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenInquiry(property)}
-                          className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 bg-white rounded-md shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium"
-                        >
-                          {t("Contact Agent")}
-                        </button>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              )}
             </div>
-            {isSearchActive && searchResults.length === 0 && !searchLoading && !searchError && (
-              <div className="mt-8 text-center text-lg text-gray-500">
-                {t("No properties found matching your search criteria.")}
-              </div>
-            )}
+            {isSearchActive &&
+              searchResults.length === 0 &&
+              !searchLoading &&
+              !searchError && (
+                <div className="mt-8 text-center text-lg text-gray-500">
+                  {t("No properties found matching your search criteria.")}
+                </div>
+              )}
           </>
         )}
 
@@ -736,22 +775,38 @@ const Home = () => {
               onClick={handleCloseInquiry}
               aria-label={t("Close")}
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">{t("Contact Agent for")}: {inquiryProperty?.title}</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              {t("Contact Agent for")}: {inquiryProperty?.title}
+            </h3>
             <form onSubmit={handleSendInquiry} className="space-y-4">
               <textarea
                 className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
                 rows={4}
                 placeholder={t("Type your message to the agent...")}
                 value={inquiryMessage}
-                onChange={e => setInquiryMessage(e.target.value)}
+                onChange={(e) => setInquiryMessage(e.target.value)}
                 required
               />
-              {inquiryError && <div className="text-red-600 text-sm">{inquiryError}</div>}
-              {inquirySuccess && <div className="text-green-600 text-sm">{inquirySuccess}</div>}
+              {inquiryError && (
+                <div className="text-red-600 text-sm">{inquiryError}</div>
+              )}
+              {inquirySuccess && (
+                <div className="text-green-600 text-sm">{inquirySuccess}</div>
+              )}
               <button
                 type="submit"
                 disabled={inquiryLoading}
