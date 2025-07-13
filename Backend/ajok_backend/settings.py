@@ -99,6 +99,13 @@ WSGI_APPLICATION = "ajok_backend.wsgi.application"
 
 
 import os
+import environ
+import os
+
+env = environ.Env()
+environ.Env.read_env()  # Reads from .env
+
+
 
 DATABASES = {
     'default': {
