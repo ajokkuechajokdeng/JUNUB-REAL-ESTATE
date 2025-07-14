@@ -188,7 +188,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "https://junub-real-estate.onrender.com",
-    "https://junub-real-estate.vercel.app/",
+    "https://junub-real-estate.vercel.app",
 ]
 
 REST_FRAMEWORK = {
