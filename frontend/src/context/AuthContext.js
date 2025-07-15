@@ -165,7 +165,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const response = await axios.post(
-        "https://junub-real-estate.onrender.com/api/users/token/refresh/",
+        "http://127.0.0.1:8000/api/users/token/refresh/",
         { refresh: refreshToken }
       );
 

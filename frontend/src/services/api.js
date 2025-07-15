@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an axios instance with default config
 const api = axios.create({
-  baseURL: "https://junub-real-estate.onrender.com/api",
+  baseURL: "http://127.0.0.1:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -78,7 +78,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          "https://junub-real-estate.onrender.com/api/users/token/refresh/",
+          "http://127.0.0.1:8000/api/users/token/refresh/",
           { refresh: refreshToken }
         );
 

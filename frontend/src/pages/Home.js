@@ -38,6 +38,8 @@ const Home = () => {
   const [inquiryError, setInquiryError] = useState("");
   const [favorites, setFavorites] = useState([]);
   const debounceTimeout = useRef(null);
+  // Modal for login prompt when favoriting
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -103,7 +105,7 @@ const Home = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          "https://junub-real-estate.onrender.com/api/properties/listings/",
+          "http://127.0.0.1:8000/api/properties/listings/",
           {
             params: { ordering: "-created_at", page_size: 6 },
           }
@@ -241,17 +243,16 @@ const Home = () => {
   };
 
   const handleFavoriteToggle = async (propertyId) => {
-    if (!isAuthenticated() || user?.profile?.role !== "tenant") {
-      navigate("/login");
+    if (!isAuthenticated() || !user || user?.profile?.role !== "tenant") {
+      setShowLoginModal(true);
       return;
     }
 
     try {
-      const isFavorite = favorites.some(
+      const isFav = favorites.some(
         (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
       );
-
-      if (isFavorite) {
+      if (isFav) {
         const favoriteToRemove = favorites.find(
           (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
         );
@@ -501,43 +502,98 @@ const Home = () => {
                           <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 flex-1">
                             {property.title}
                           </h3>
-                          {isAuthenticated() &&
-                            user?.profile?.role === "tenant" && (
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleFavoriteToggle(property.id);
-                                }}
-                                className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                                aria-label={
-                                  isFavorite(property.id)
-                                    ? t("Remove from favorites")
-                                    : t("Add to favorites")
-                                }
-                              >
-                                <svg
-                                  className={`h-6 w-6 ${
-                                    isFavorite(property.id)
-                                      ? "text-red-500 fill-current"
-                                      : "text-gray-400 hover:text-red-500"
-                                  }`}
-                                  fill={
-                                    isFavorite(property.id)
-                                      ? "currentColor"
-                                      : "none"
-                                  }
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleFavoriteToggle(property.id);
+                            }}
+                            className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                            aria-label={
+                              isFavorite(property.id)
+                                ? t("Remove from favorites")
+                                : t("Add to favorites")
+                            }
+                          >
+                            <svg
+                              className={`h-6 w-6 ${
+                                isFavorite(property.id)
+                                  ? "text-red-500 fill-current"
+                                  : "text-gray-400 hover:text-red-500"
+                              }`}
+                              fill={
+                                isFavorite(property.id)
+                                  ? "currentColor"
+                                  : "none"
+                              }
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                              />
+                            </svg>
+                          </button>
+                          {/* Login Modal for Favorite (not logged in) */}
+                          {showLoginModal && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                              <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative animate-fade-in">
+                                <button
+                                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                                  onClick={() => setShowLoginModal(false)}
+                                  aria-label={t("Close")}
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                  />
-                                </svg>
-                              </button>
-                            )}
+                                  <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                </button>
+                                <div className="flex flex-col items-center text-center">
+                                  <svg
+                                    className="h-12 w-12 text-blue-600 mb-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                  <h3 className="text-lg font-semibold mb-2 text-gray-900">
+                                    {t("Login Required")}
+                                  </h3>
+                                  <p className="mb-4 text-gray-600">
+                                    {t(
+                                      "Please log in to add properties to your favorites and enjoy personalized features."
+                                    )}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      setShowLoginModal(false);
+                                      navigate("/login");
+                                    }}
+                                    className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  >
+                                    {t("Login Now")}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <p className="mt-2 text-sm text-gray-500">
