@@ -6,6 +6,63 @@ import { AuthContext } from "../../context/AuthContext";
 import { propertiesAPI } from "../../services/api";
 
 const Dashboard = () => {
+  // Floating voice command banner state
+  const [showVoiceBanner, setShowVoiceBanner] = useState(true);
+  // Floating Voice Command Banner (tenant only)
+  const VoiceCommandBanner = () => (
+    <div
+      className="fixed z-50 top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in"
+      style={{
+        minWidth: 320,
+        maxWidth: "90vw",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+      }}
+      role="alert"
+    >
+      <span className="inline-flex items-center justify-center bg-white bg-opacity-20 rounded-full p-2 mr-2">
+        <svg
+          className="h-6 w-6 text-white"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 18v2m0 0c-3.314 0-6-2.686-6-6h2a4 4 0 008 0h2c0 3.314-2.686 6-6 6zm0 0V4a4 4 0 018 0v8a4 4 0 01-8 0V4"
+          />
+        </svg>
+      </span>
+      <div className="flex-1">
+        <span className="font-semibold">Voice Command Enabled</span>
+        <span className="block text-sm opacity-90">
+          You can use voice commands to navigate and search property. Try saying{" "}
+          <span className="font-bold">"I want property"</span> or{" "}
+          <span className="font-bold">"go to home page"</span>.
+        </span>
+      </div>
+      <button
+        onClick={() => setShowVoiceBanner(false)}
+        className="ml-4 text-white hover:text-gray-200 focus:outline-none"
+        aria-label="Dismiss voice command banner"
+      >
+        <svg
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  );
   const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -1350,6 +1407,10 @@ const Dashboard = () => {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
+              {/* Floating Voice Command Banner for Tenants */}
+              {user?.profile?.role === "tenant" && showVoiceBanner && (
+                <VoiceCommandBanner />
+              )}
               <h1 className="text-3xl font-bold text-gray-900">
                 {t("Dashboard")}
               </h1>
