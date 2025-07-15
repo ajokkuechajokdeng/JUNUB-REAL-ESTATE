@@ -22,7 +22,7 @@ const Login = () => {
       if (user?.profile?.role === 'agent') {
         navigate('/dashboard');
       } else {
-        navigate('/my-rentals');
+        navigate('/');
       }
     }
   }, [isAuthenticated, navigate, user]);
