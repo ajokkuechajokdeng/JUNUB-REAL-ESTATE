@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
         navigate("/dashboard");
       } else {
         console.log("Redirecting to tenant rentals");
-        navigate("/my-rentals");
+        navigate("/");
       }
       return true;
     } catch (err) {
