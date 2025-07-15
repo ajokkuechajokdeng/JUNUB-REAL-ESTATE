@@ -51,30 +51,32 @@ const AddProperty = () => {
     setSuccess(false);
     try {
       // 1. Create property (without images)
-      const res = await propertiesAPI.createProperty({
-        ...form,
-        price: Number(form.price),
-        bedrooms: Number(form.bedrooms),
-        bathrooms: Number(form.bathrooms),
-        area: Number(form.area),
-        property_type_id: form.property_type_id, // Use property_type_id
-        address: form.address, // Ensure address is sent
-      });
-      const propertyId = res.data.id;
-      // 2. Upload images if any
-      if (images.length > 0) {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("price", form.price);
+      formData.append("address", form.address);
+      formData.append("location", form.location);
+      formData.append("property_status", form.property_status);
+      formData.append("bedrooms", form.bedrooms);
+      formData.append("bathrooms", form.bathrooms);
+      formData.append("area", form.area);
+      if (form.property_type_id) formData.append("property_type_id", form.property_type_id);
+      if (form.agent_id) formData.append("agent_id", form.agent_id);
+      if (form.feature_ids && form.feature_ids.length > 0) {
+        form.feature_ids.forEach(fid => formData.append("feature_ids", fid));
+      }
+      if (images && images.length > 0) {
         for (const img of images) {
-          const formData = new FormData();
-          formData.append("image", img);
-          await propertiesAPI.uploadImage(propertyId, formData);
+          formData.append("uploaded_images", img);
         }
       }
-      setSuccess(true);
-      setTimeout(() => navigate("/my-properties"), 1500);
-    } catch (err) {
-      setError(t("Failed to add property. Please check your input."));
-    } finally {
+      const res = await propertiesAPI.createProperty(formData);
       setLoading(false);
+      setSuccess(true);
+    } catch (err) {
+      setLoading(false);
+      setError(err?.response?.data?.detail || "Failed to add property.");
     }
   };
 

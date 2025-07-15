@@ -1,3 +1,12 @@
+# Ensure Path is imported before MEDIA_ROOT is set
+from dotenv import load_dotenv
+import os
+import environ
+from pathlib import Path
+# Media files (uploads)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(__file__).resolve().parent.parent / "media"
+
 """
 Django settings for ajok_backend project.
 
@@ -9,10 +18,6 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-from pathlib import Path
-import os
-from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,9 +41,11 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(
 
 
 ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
     "junub-real-estate.onrender.com",
+    "junub-real-estate.vercel.app",
 ]
-
 
 
 # Application definition
@@ -103,14 +110,8 @@ WSGI_APPLICATION = "ajok_backend.wsgi.application"
 # }
 
 
-
-import os
-import environ
-import os
-
 env = environ.Env()
 environ.Env.read_env()  # Reads from .env
-
 
 
 DATABASES = {
@@ -128,8 +129,16 @@ DATABASES = {
 }
 
 
-
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('MYSQL_NAME'),
+#         'USER': os.getenv('MYSQL_USER'),
+#         'PASSWORD': os.getenv('MYSQL_PASSWORD'),
+#         'HOST': os.getenv('MYSQL_HOST'),
+#         'PORT': os.getenv('MYSQL_PORT'),
+#     }
+# }
 
 
 # Password validation
@@ -169,25 +178,21 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Example STORAGES dictionary, update as needed for your storage backend
 STORAGES = {
-    # ...
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
 }
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "https://junub-real-estate.onrender.com",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
     "https://junub-real-estate.vercel.app",
 ]
 

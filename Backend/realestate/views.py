@@ -56,25 +56,23 @@ class HouseViewSet(viewsets.ModelViewSet):
         """
         Set the created_by field to the current user.
         If the user is an agent, automatically set the agent field.
+        Handles image uploads from multipart/form-data.
         """
         user = self.request.user
-
-        # Check if user has an agent profile
+        uploaded_images = self.request.FILES.getlist('uploaded_images')
         try:
             if hasattr(user, 'profile') and user.profile.role == 'agent':
                 try:
                     agent = Agent.objects.get(user=user)
-                    serializer.save(created_by=user, agent=agent)
+                    instance = serializer.save(created_by=user, agent=agent, uploaded_images=uploaded_images)
                 except Agent.DoesNotExist:
-                    # Log the error but continue with creating the property
                     import logging
                     logger = logging.getLogger(__name__)
                     logger.error(f"User {user.username} has agent role but no agent profile")
-                    serializer.save(created_by=user)
+                    instance = serializer.save(created_by=user, uploaded_images=uploaded_images)
             else:
-                serializer.save(created_by=user)
+                instance = serializer.save(created_by=user, uploaded_images=uploaded_images)
         except Exception as e:
-            # Log any unexpected errors
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Error creating property: {str(e)}")

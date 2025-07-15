@@ -21,12 +21,20 @@ class FeatureSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+
 class PropertyImageSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = PropertyImage
         fields = ['id', 'image']
+
+    def get_image(self, obj):
+        request = self.context.get('request', None)
+        if request is not None:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url
 
 
 class AgentSerializer(serializers.ModelSerializer):
@@ -64,6 +72,11 @@ class HouseSerializer(serializers.ModelSerializer):
     feature_ids = serializers.PrimaryKeyRelatedField(queryset=Feature.objects.all(
     ), source='features', many=True, write_only=True, required=False)
     images = PropertyImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
+        write_only=True,
+        required=False
+    )
     agent = AgentSerializer(read_only=True)
     agent_id = serializers.PrimaryKeyRelatedField(
         queryset=Agent.objects.all(), source='agent', write_only=True, required=False)
@@ -71,9 +84,16 @@ class HouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
         fields = ['id', 'title', 'description', 'price', 'address', 'location', 'property_status', 'bedrooms', 'bathrooms', 'area', 'property_type',
-                  'property_type_id', 'features', 'feature_ids', 'images', 'agent', 'agent_id', 'created_by', 'created_at', 'updated_at', 'status']
+                  'property_type_id', 'features', 'feature_ids', 'images', 'uploaded_images', 'agent', 'agent_id', 'created_by', 'created_at', 'updated_at', 'status']
         read_only_fields = ['created_by', 'created_at', 'updated_at',
                             'images', 'features', 'property_type', 'agent']
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        house = super().create(validated_data)
+        for image in uploaded_images:
+            PropertyImage.objects.create(house=house, image=image)
+        return house
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

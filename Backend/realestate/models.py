@@ -186,7 +186,7 @@ class PropertyImage(models.Model):
     house = models.ForeignKey(
         House, on_delete=models.CASCADE, related_name='images',
         help_text="The property this image belongs to")
-    image = models.URLField(help_text="URL to the image file")
+    image = models.ImageField(upload_to="property_images/", help_text="Image file for the property")
 
     # Could add additional fields like:
     # is_primary = models.BooleanField(default=False, help_text="Whether this is the main image for the property")

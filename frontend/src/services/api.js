@@ -127,7 +127,9 @@ export const propertiesAPI = {
   getProperties: (params) => api.get("/properties/listings/", { params }),
   getProperty: (id) => api.get(`/properties/listings/${id}/`),
   createProperty: (propertyData) =>
-    api.post("/properties/listings/", propertyData),
+    api.post("/properties/listings/", propertyData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
   updateProperty: (id, propertyData) =>
     api.put(`/properties/listings/${id}/`, propertyData),
   deleteProperty: (id) => api.delete(`/properties/listings/${id}/`),
