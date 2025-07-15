@@ -100,14 +100,14 @@ const Dashboard = () => {
         if (user?.profile?.role === "tenant") {
           // For tenants: fetch favorites and recommendations
           const favoritesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/favorites/",
+            "https://junub-real-estate.onrender.com/api/properties/favorites/",
             { headers }
           );
           setFavorites(favoritesRes.data.results || favoritesRes.data);
 
           // Fetch recommended properties based on favorites
           const recommendationsRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/favorites/recommended/",
+            "https://junub-real-estate.onrender.com/api/properties/favorites/recommended/",
             { headers }
           );
           setRecommendations(
@@ -116,7 +116,7 @@ const Dashboard = () => {
 
           // Fetch tenant's inquiries
           const inquiriesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/inquiries/",
+            "https://junub-real-estate.onrender.com/api/properties/inquiries/",
             { headers }
           );
           setInquiries(inquiriesRes.data.results || inquiriesRes.data);
@@ -126,7 +126,7 @@ const Dashboard = () => {
 
           // For agents: fetch properties and inquiries
           const propertiesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/listings/agent_properties/",
+            "https://junub-real-estate.onrender.com/api/properties/listings/agent_properties/",
             { headers }
           );
           console.log("Agent properties:", propertiesRes.data);
@@ -134,7 +134,7 @@ const Dashboard = () => {
 
           // Fetch inquiries about agent's properties
           const inquiriesRes = await axios.get(
-            "http://127.0.0.1:8000/api/properties/inquiries/",
+            "https://junub-real-estate.onrender.com/api/properties/inquiries/",
             { headers }
           );
           console.log("Agent inquiries:", inquiriesRes.data);
@@ -970,7 +970,7 @@ const Dashboard = () => {
       };
 
       await axios.post(
-        `http://127.0.0.1:8000/api/properties/inquiries/${inquiryId}/respond/`,
+        `https://junub-real-estate.onrender.com/api/properties/inquiries/${inquiryId}/respond/`,
         { response },
         { headers }
       );
@@ -1202,7 +1202,7 @@ const Dashboard = () => {
                       // Add to favorites functionality
                       axios
                         .post(
-                          "http://127.0.0.1:8000/api/properties/favorites/",
+                          "https://junub-real-estate.onrender.com/api/properties/favorites/",
                           { house_id: property.id },
                           {
                             headers: {
@@ -1321,7 +1321,7 @@ const Dashboard = () => {
                         if (message) {
                           axios
                             .post(
-                              "http://127.0.0.1:8000/api/properties/inquiries/",
+                              "https://junub-real-estate.onrender.com/api/properties/inquiries/",
                               {
                                 house_id: property.id,
                                 message,

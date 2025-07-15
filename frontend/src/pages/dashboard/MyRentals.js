@@ -26,14 +26,14 @@ const MyRentals = () => {
 
         // Fetch favorites
         const favoritesRes = await axios.get(
-          "http://127.0.0.1:8000/api/properties/favorites/",
+          "https://junub-real-estate.onrender.com/api/properties/favorites/",
           { headers }
         );
         setFavorites(favoritesRes.data.results || favoritesRes.data);
 
         // Fetch inquiries
         const inquiriesRes = await axios.get(
-          "http://127.0.0.1:8000/api/properties/inquiries/",
+          "https://junub-real-estate.onrender.com/api/properties/inquiries/",
           { headers }
         );
         setInquiries(inquiriesRes.data.results || inquiriesRes.data);
@@ -59,7 +59,7 @@ const MyRentals = () => {
       };
 
       await axios.delete(
-        `http://127.0.0.1:8000/api/properties/favorites/${id}/`,
+        `https://junub-real-estate.onrender.com/api/properties/favorites/${id}/`,
         { headers }
       );
 
@@ -202,7 +202,7 @@ const MyRentals = () => {
 
                           axios
                             .post(
-                              "http://127.0.0.1:8000/api/properties/inquiries/",
+                              "https://junub-real-estate.onrender.com/api/properties/inquiries/",
                               {
                                 house_id: property.id,
                                 message,

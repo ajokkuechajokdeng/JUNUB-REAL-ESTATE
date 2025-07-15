@@ -364,7 +364,7 @@ const PropertyList = () => {
                         src={
                           property.images[0].image.startsWith("http")
                             ? property.images[0].image
-                            : `http://127.0.0.1:8000${property.images[0].image}`
+                            : `https://junub-real-estate.onrender.com${property.images[0].image}`
                         }
                         alt={property.title}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
