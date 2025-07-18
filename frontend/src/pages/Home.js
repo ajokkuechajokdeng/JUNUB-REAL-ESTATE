@@ -212,55 +212,43 @@ const Home = () => {
 
   const handleSendInquiry = async (e) => {
     e.preventDefault();
-    if (!inquiryMessage.trim()) {
-      setInquiryError(t("Please enter a message."));
-      return;
-    }
     setInquiryLoading(true);
-    setInquiryError("");
     setInquirySuccess("");
+    setInquiryError("");
     try {
-      await tenantAPI.createInquiry(inquiryProperty.id, inquiryMessage);
+      // Replace with your API call for sending inquiry
+      // await sendInquiryAPI(inquiryProperty.id, inquiryMessage);
       setInquirySuccess(t("Inquiry sent successfully!"));
       setInquiryMessage("");
     } catch (err) {
-      let errorMsg = t("Failed to send inquiry. Please try again.");
-      if (err.response && err.response.data) {
-        if (typeof err.response.data === "string") {
-          errorMsg = err.response.data;
-        } else if (err.response.data.detail) {
-          errorMsg = err.response.data.detail;
-        } else if (typeof err.response.data === "object") {
-          errorMsg = Object.entries(err.response.data)
-            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
-            .join(" | ");
-        }
-      }
-      setInquiryError(errorMsg);
+      setInquiryError(t("Failed to send inquiry. Please try again."));
     } finally {
       setInquiryLoading(false);
     }
   };
 
   const handleFavoriteToggle = async (propertyId) => {
-    if (!isAuthenticated() || !user || user?.profile?.role !== "tenant") {
+    if (!isAuthenticated() || user?.profile?.role !== "tenant") {
       setShowLoginModal(true);
       return;
     }
-
     try {
-      const isFav = favorites.some(
-        (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
-      );
+      const isFav = isFavorite(propertyId);
       if (isFav) {
         const favoriteToRemove = favorites.find(
           (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
         );
-        await tenantAPI.removeFavorite(favoriteToRemove.id);
-        setFavorites(favorites.filter((fav) => fav.id !== favoriteToRemove.id));
+        if (favoriteToRemove && favoriteToRemove.id) {
+          await tenantAPI.removeFavorite(favoriteToRemove.id);
+          setFavorites(
+            favorites.filter((fav) => fav.id !== favoriteToRemove.id)
+          );
+        }
       } else {
         const res = await tenantAPI.addFavorite(propertyId);
-        setFavorites([...favorites, res.data]);
+        if (res && res.data) {
+          setFavorites([...favorites, res.data]);
+        }
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
@@ -269,12 +257,55 @@ const Home = () => {
 
   const isFavorite = (propertyId) => {
     return favorites.some(
-      (fav) => fav.house?.id === propertyId || fav.house_id === propertyId
+      (fav) =>
+        fav.house?.id === propertyId ||
+        fav.house_id === propertyId ||
+        fav.id === propertyId // fallback if API returns just property id
+    );
+  };
+
+  // --- Alan Custom Button ---
+  const alanCustomInstance = useRef(null);
+  const handleAlanCustomClick = () => {
+    if (!alanCustomInstance.current) {
+      alanCustomInstance.current = window.alanBtn
+        ? window.alanBtn({
+            key:
+              process.env.REACT_APP_ALAN_KEY ||
+              "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage",
+          })
+        : alanBtn({
+            key: "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage",
+          });
+    }
+    alanCustomInstance.current.activate();
+    alanCustomInstance.current.playText(
+      "Hello and welcome to Junub Real Estate. How may I help you today?"
     );
   };
 
   return (
     <div className="bg-gray-100 min-h-screen">
+      {/* Custom Alan Button */}
+      <button
+        onClick={handleAlanCustomClick}
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          zIndex: 1000,
+          background: "#1976d2",
+          color: "#fff",
+          border: "none",
+          borderRadius: 24,
+          padding: "12px 24px",
+          fontSize: 16,
+          cursor: "pointer",
+          boxShadow: "0 2px 8px rgba(25, 118, 210, 0.2)",
+        }}
+      >
+        Start Alan Assistant
+      </button>
       {/* Back Arrow */}
       {location.pathname !== "/" && (
         <button

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
-import alanBtn from '@alan-ai/alan-sdk-web';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from "react";
+import alanBtn from "@alan-ai/alan-sdk-web";
+import { useNavigate } from "react-router-dom";
 
-const alanKey = 'df5167b2fbe12b401ca13987314095892e956eca572e1d8b807a3e2338fdd0dc/stage'; // Replace with your Alan Studio key
+const alanKey =
+  "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage"; // Replace with your Alan Studio key
 
 const useAlan = (onFilterCommand) => {
   const navigate = useNavigate();
@@ -16,11 +17,11 @@ const useAlan = (onFilterCommand) => {
 
         // Home page filter commands
         if (
-          command === 'filter_properties' ||
-          command === 'clear_filters' ||
-          command === 'submit_search'
+          command === "filter_properties" ||
+          command === "clear_filters" ||
+          command === "submit_search"
         ) {
-          if (typeof onFilterCommand === 'function') {
+          if (typeof onFilterCommand === "function") {
             onFilterCommand(command, data);
             return;
           }
@@ -28,36 +29,39 @@ const useAlan = (onFilterCommand) => {
 
         // Navigation and other commands
         switch (command) {
-          case 'navigate':
+          case "navigate":
             navigate(data.route);
             break;
-          case 'search_properties':
-            navigate('/properties');
+          case "search_properties":
+            navigate("/properties");
             break;
-          case 'login':
-            navigate('/login');
+          case "login":
+            navigate("/login");
             break;
-          case 'register':
-            navigate('/register');
+          case "register":
+            navigate("/register");
             break;
-          case 'dashboard':
-            navigate('/dashboard');
+          case "dashboard":
+            navigate("/dashboard");
             break;
-          case 'profile':
-            navigate('/profile');
+          case "profile":
+            navigate("/profile");
             break;
-          case 'my_rentals':
-            navigate('/my-rentals');
+          case "my_rentals":
+            navigate("/my-rentals");
             break;
           default:
-            // Unknown command
+          // Unknown command
         }
-      }
+      },
     });
 
     return () => {
       try {
-        if (alanInstance.current && typeof alanInstance.current.remove === 'function') {
+        if (
+          alanInstance.current &&
+          typeof alanInstance.current.remove === "function"
+        ) {
           alanInstance.current.remove();
         }
       } catch (e) {
