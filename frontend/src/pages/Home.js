@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
 } from "react";
+import alanBtn from "@alan-ai/alan-sdk-web";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
