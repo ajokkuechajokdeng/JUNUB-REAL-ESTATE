@@ -265,8 +265,10 @@ const Home = () => {
     );
   };
 
-  // --- Alan Custom Button ---
+  // --- Alan Custom Button (toggle start/stop) ---
   const alanCustomInstance = useRef(null);
+  const [alanActive, setAlanActive] = useState(false);
+
   const handleAlanCustomClick = () => {
     if (!alanCustomInstance.current) {
       alanCustomInstance.current = window.alanBtn
@@ -278,35 +280,81 @@ const Home = () => {
         : alanBtn({
             key: "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage",
           });
+      window.alanBtnInstance = alanCustomInstance.current;
     }
-    alanCustomInstance.current.activate();
-    alanCustomInstance.current.playText(
-      "Hello and welcome to Junub Real Estate. How may I help you today?"
-    );
+
+    if (!alanActive) {
+      alanCustomInstance.current.activate();
+      alanCustomInstance.current.playText(
+        "Hello and welcome to Junub Real Estate. How may I help you today?"
+      );
+      setAlanActive(true);
+    } else {
+      alanCustomInstance.current.deactivate();
+      setAlanActive(false);
+    }
   };
+
+  // Optional: Listen for Alan deactivation to update button state
+  useEffect(() => {
+    if (!alanCustomInstance.current) return;
+    // Alan SDK does not provide a direct event for deactivation,
+    // so we rely on our own state for toggling.
+  }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* Custom Alan Button */}
+      {/* Custom Alan Button (toggle start/stop) */}
       <button
         onClick={handleAlanCustomClick}
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 rounded-full shadow-xl transition-all duration-200 border-4 border-white focus:outline-none focus:ring-4 focus:ring-blue-300
+          ${
+            alanActive
+              ? "bg-gradient-to-br from-red-600 to-red-400 hover:from-red-700 hover:to-red-500"
+              : "bg-gradient-to-br from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500"
+          }
+        `}
         style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          zIndex: 1000,
-          background: "#1976d2",
-          color: "#fff",
-          border: "none",
-          borderRadius: 24,
-          padding: "12px 24px",
-          fontSize: 16,
-          cursor: "pointer",
-          boxShadow: "0 2px 8px rgba(25, 118, 210, 0.2)",
+          boxShadow: "0 4px 24px rgba(25, 118, 210, 0.18)",
+          animation: "pulse 2s infinite",
         }}
+        aria-label={alanActive ? "Stop Alan Assistant" : "Start Alan Assistant"}
       >
-        Start Alan Assistant
+        {alanActive ? (
+          // Stop icon
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        ) : (
+          // Microphone icon
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 18.5a6.5 6.5 0 01-6.5-6.5V9a6.5 6.5 0 1113 0v3a6.5 6.5 0 01-6.5 6.5zm0 0v2m-4 0h8"
+            />
+          </svg>
+        )}
       </button>
+      {/* ...rest of your code remains unchanged... */}
       {/* Back Arrow */}
       {location.pathname !== "/" && (
         <button

@@ -114,31 +114,31 @@ env = environ.Env()
 environ.Env.read_env()  # Reads from .env
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-        'OPTIONS': {
-            'ssl': {'ssl-mode': os.environ.get('DB_SSL_MODE', 'REQUIRED')},
-        },
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.getenv('MYSQL_NAME'),
-#         'USER': os.getenv('MYSQL_USER'),
-#         'PASSWORD': os.getenv('MYSQL_PASSWORD'),
-#         'HOST': os.getenv('MYSQL_HOST'),
-#         'PORT': os.getenv('MYSQL_PORT'),
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT'),
+#         'OPTIONS': {
+#             'ssl': {'ssl-mode': os.environ.get('DB_SSL_MODE', 'REQUIRED')},
+#         },
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('MYSQL_NAME'),
+        'USER': os.getenv('MYSQL_USER'),
+        'PASSWORD': os.getenv('MYSQL_PASSWORD'),
+        'HOST': os.getenv('MYSQL_HOST'),
+        'PORT': os.getenv('MYSQL_PORT'),
+    }
+}
 
 
 # Password validation
@@ -190,7 +190,6 @@ STORAGES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
-    "https://junub-real-estate.onrender.com",
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "https://junub-real-estate.vercel.app",
