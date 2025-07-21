@@ -9,7 +9,7 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 ## Demo & Deployed App
 
 - **Deployed App:** [https://junub-real-estate.vercel.app/](https://junub-real-estate.vercel.app/)
-- **Demo Video:** [App Demo Video (5 min)]()
+- **Demo Video:** [App Demo Video (5 min)](https://docs.google.com/document/d/1GytT4VisoHvPAKEbAa4km7dwsET_FpvYbNLX1PYsPGM/edit?tab=t.0)
 - **Screenshots:**  
   ![Home](c:/Users/HP/Pictures/Screenshots/Screenshot%202025-07-21%20231200.png)  
   ![Database Schema](./frontend/public/Images/Databases%20Schema.png)
