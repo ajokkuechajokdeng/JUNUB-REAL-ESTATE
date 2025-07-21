@@ -11,43 +11,64 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 - **Deployed App:** [https://junub-real-estate.vercel.app/](https://junub-real-estate.vercel.app/)
 - **Demo Video:** [App Demo Video (5 min)](https://drive.google.com/file/d/1BzOIYgXcOFGhmK4W23-hEkJyGSghgmmW/view?usp=sharing)
 - **Screenshots:**  
-  ![Home](./frontend/public/Images/Screenshot%202025-06-09%20164400.png)  
+  ![Home](c:/Users/HP/Pictures/Screenshots/Screenshot%202025-07-21%20231200.png)  
   ![Database Schema](./frontend/public/Images/Databases%20Schema.png)
 
 ---
 
 ## Installation & Running the App
 
-### Backend (Django)
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
+cd JUNUB-REAL-ESTATE
+```
+
+### 2. Backend (Django)
 
 1. **Navigate to Backend:**
    ```bash
    cd Backend
    ```
-2. **Install dependencies:**
+2. **Set up environment variables:**
+   - Create a `.env` file in the `Backend` directory.
+   - Add your secret keys and database configuration, for example:
+     ```
+     SECRET_KEY=your-django-secret-key
+     DEBUG=True
+     DB_NAME=your_db_name
+     DB_USER=your_db_user
+     DB_PASSWORD=your_db_password
+     DB_HOST=localhost
+     DB_PORT=5432
+     ```
+   - Make sure your database (e.g., MySQL) is running and matches your `.env` configuration.
+3. **Install dependencies:**
    ```bash
-   pip install django djangorestframework
+   pip install django djangorestframework python-dotenv
    ```
-3. **Run migrations:**
+4. **Run migrations:**
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
-4. **Create a superuser:**
+5. **Create a superuser:**
    ```bash
    python manage.py createsuperuser
    ```
-5. **Start the server:**
+6. **Start the server:**
    ```bash
    python manage.py runserver
    ```
 
-### Frontend (React)
+### 3. Frontend (React)
 
 1. **Navigate to frontend:**
    ```bash
    cd frontend
    ```
+
 2. **Install dependencies:**
    ```bash
    npm install
@@ -123,7 +144,3 @@ See below for detailed features, role-based functionality, and API documentation
 #### Professional Features
 
 - Enhanced role-based access control, admin interface, error handling, logging, API documentation, advanced filtering.
-
-</details>
-
----
