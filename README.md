@@ -10,23 +10,74 @@ JUNUB Real Estate is a full-stack web application for managing and listing real 
 
 - **Deployed App:** [https://junub-real-estate.vercel.app/](https://junub-real-estate.vercel.app/)
 - **Demo Video:** [App Demo Video (5 min)](https://docs.google.com/document/d/1GytT4VisoHvPAKEbAa4km7dwsET_FpvYbNLX1PYsPGM/edit?tab=t.0)
-- **Screenshots:**  
-  ![Home](c:/Users/HP/Pictures/Screenshots/Screenshot%202025-07-21%20231200.png)  
-  ![Database Schema](./frontend/public/Images/Databases%20Schema.png)
+
+
 
 ---
 
-## Installation & Running the App
 
-### 1. Clone the Repository
+# JUNUB Real Estate
 
-```bash
-git clone https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
-cd JUNUB-REAL-ESTATE
-```
+## Overview
 
-### 2. Backend (Django)
+JUNUB Real Estate is a full-stack web application for managing and listing real estate properties in South Sudan. It supports tenants and agents, with features for property search, management, favorites, inquiries, and more.
 
+---
+
+## Demo & Deployed App
+
+- **Deployed App:** [https://junub-real-estate.vercel.app/](https://junub-real-estate.vercel.app/)
+- **Demo Video:** [App Demo Video (5 min)](https://docs.google.com/document/d/1GytT4VisoHvPAKEbAa4km7dwsET_FpvYbNLX1PYsPGM/edit?tab=t.0)
+
+---
+
+## Visual Overview & Feature Highlights
+
+### Database Schema
+![Database Schema](frontend/public/Images/Databases%20Schema.png)
+
+---
+
+
+### Home Page
+The main entry point for users, showing featured properties and search options. Users can also use voice commands to search for properties, thanks to Alan AI integration.
+![Home Page](frontend/public/Images/Home%20page.png)
+
+---
+
+### Tenant Experience
+
+#### Tenant Dashboard
+Personalized dashboard for tenants to manage favorites, inquiries, and view recommended properties.
+![Tenant Dashboard](frontend/public/Images/tenant%20dashboard.png)
+
+#### Tenant Dashboard (Alternative View)
+![Tenant Dashboard Alt](frontend/public/Images/Tenant.%20dashboard.png)
+
+
+#### Tenant Inquiries
+Tenants can message or make inquiries about a property directly to the agent, and manage their sent messages.
+![Tenant Inquiries](frontend/public/Images/inquire%20or%20message%20agent.png)
+
+---
+
+### Agent Experience
+
+#### Agent Dashboard
+Agents can manage their property listings and view analytics.
+![Agent Dashboard](frontend/public/Images/Agent%20dashboard.png)
+
+
+#### Agent Properties
+Agents can manage their properties, including creating, editing, and removing listings.
+![Agent Properties](frontend/public/Images/Agnet%20properties.png)
+
+#### Agent Inquiries
+Agents can view and respond to inquiries from potential tenants.
+![Agent Inquiries](frontend/public/Images/Agent%20inquiries.png)
+![Agent Inquiries Alt](frontend/public/Images/Agent%20inquires.png)
+
+---
 1. **Navigate to Backend:**
    ```bash
    cd Backend
