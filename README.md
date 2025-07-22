@@ -78,6 +78,20 @@ Agents can view and respond to inquiries from potential tenants.
 ![Agent Inquiries Alt](frontend/public/Images/Agent%20inquires.png)
 
 ---
+
+## Project Setup
+
+### 1. Clone the Repository
+
+Start by cloning the repository to your local machine:
+
+```bash
+git clone https://github.com/ajokkuechajokdeng/JUNUB-REAL-ESTATE.git
+cd JUNUB-REAL-ESTATE
+```
+
+### 2. Backend (Django)
+
 1. **Navigate to Backend:**
    ```bash
    cd Backend
@@ -119,7 +133,6 @@ Agents can view and respond to inquiries from potential tenants.
    ```bash
    cd frontend
    ```
-
 2. **Install dependencies:**
    ```bash
    npm install
