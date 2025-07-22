@@ -182,29 +182,46 @@ cd JUNUB-REAL-ESTATE
 
 ---
 
-## Additional Information
 
-See below for detailed features, role-based functionality, and API documentation.
+## Testing Results
 
-<details>
-<summary>Click to expand for more details</summary>
+### Demonstration of Functionality
+- The application was tested using manual and automated strategies, including unit tests for backend logic and manual UI/UX walkthroughs.
+- Screenshots throughout this README demonstrate the core functionalities for both tenants and agents.
 
-### User Registration and Login
+### Testing with Different Data Values
+- The system was tested with various user roles (tenant, agent), property types, and inquiry scenarios to ensure robustness.
+- Edge cases such as empty searches, invalid logins, and duplicate favorites were handled gracefully.
 
-- Register via `/api/users/register/` with role selection (`tenant` or `agent`).
-- Login via `/api/users/token/` (automatic role detection).
-- Example registration and login requests are provided in the full documentation.
+### Performance on Different Systems
+- The app was run and tested on Windows 10/11, MacOS, and mobile browsers (Chrome, Firefox, Edge).
+- No significant performance issues were observed on standard hardware.
 
-### Role-Based Functionality
+---
 
-#### Tenant Features
+## Analysis
 
-- Property search, filtering, favorites, inquiries, dashboard, recommendations.
+- The project achieved its main objectives: role-based access, property management, inquiry system, and responsive design.
+- All planned features were implemented and tested successfully, except for a few minor UI enhancements that are scheduled for future work.
+- The backend and frontend communicate seamlessly, and the database schema supports all required relationships.
+- Regular meetings with the supervisor helped refine requirements and address challenges early.
 
-#### Agent Features
+---
 
-- Agent profile, property management, inquiry management, image management.
+## Discussion
 
-#### Professional Features
+- Each milestone (authentication, property CRUD, inquiries, dashboard) was critical for the overall user experience and system reliability.
+- The integration of voice search (Alan AI) and multi-language support added significant value and accessibility.
+- Supervisor feedback led to improved error handling, more comprehensive testing, and the improvisation of the voice search (Alan AI) integration.
 
-- Enhanced role-based access control, admin interface, error handling, logging, API documentation, advanced filtering.
+---
+
+## Recommendations & Future Work
+
+- Consider adding automated end-to-end tests for even greater reliability.
+- Expand the analytics dashboard for agents and admins.
+- Integrate payment or booking features for premium listings.
+- Continue to gather user feedback and iterate on the UI/UX.
+- Share the project with the local real estate community for broader adoption and contributions.
+
+---
