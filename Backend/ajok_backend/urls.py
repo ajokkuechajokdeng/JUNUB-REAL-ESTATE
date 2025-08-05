@@ -1,3 +1,5 @@
+from django.conf.urls.static import static
+from django.conf import settings
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -23,8 +25,6 @@ router.register(r'properties/favorites', FavoriteViewSet, basename='favorite')
 router.register(r'properties/inquiries', PropertyInquiryViewSet,
                 basename='propertyinquiry')
 
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -49,4 +49,5 @@ urlpatterns = [
 
 # Serve static and media files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

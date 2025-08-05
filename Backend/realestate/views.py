@@ -14,19 +14,25 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import TenantTokenObtainPairSerializer, AgentTokenObtainPairSerializer, AutoDetectRoleTokenObtainPairSerializer
 
 # Custom permission classes
+
+
 class IsTenant(permissions.BasePermission):
     """
     Custom permission to only allow tenants to access a view.
     """
+
     def has_permission(self, request, view):
         return hasattr(request.user, 'profile') and request.user.profile.role == 'tenant'
+
 
 class IsAgent(permissions.BasePermission):
     """
     Custom permission to only allow agents to access a view.
     """
+
     def has_permission(self, request, view):
         return hasattr(request.user, 'profile') and request.user.profile.role == 'agent'
+
 
 class HouseViewSet(viewsets.ModelViewSet):
     """
@@ -64,14 +70,18 @@ class HouseViewSet(viewsets.ModelViewSet):
             if hasattr(user, 'profile') and user.profile.role == 'agent':
                 try:
                     agent = Agent.objects.get(user=user)
-                    instance = serializer.save(created_by=user, agent=agent, uploaded_images=uploaded_images)
+                    instance = serializer.save(
+                        created_by=user, agent=agent, uploaded_images=uploaded_images)
                 except Agent.DoesNotExist:
                     import logging
                     logger = logging.getLogger(__name__)
-                    logger.error(f"User {user.username} has agent role but no agent profile")
-                    instance = serializer.save(created_by=user, uploaded_images=uploaded_images)
+                    logger.error(
+                        f"User {user.username} has agent role but no agent profile")
+                    instance = serializer.save(
+                        created_by=user, uploaded_images=uploaded_images)
             else:
-                instance = serializer.save(created_by=user, uploaded_images=uploaded_images)
+                instance = serializer.save(
+                    created_by=user, uploaded_images=uploaded_images)
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
@@ -133,14 +143,16 @@ class HouseViewSet(viewsets.ModelViewSet):
         try:
             # Check if user has a profile and is an agent
             if not hasattr(user, 'profile'):
-                logger.warning(f"User {user.username} attempted to access agent properties but has no profile")
+                logger.warning(
+                    f"User {user.username} attempted to access agent properties but has no profile")
                 return Response(
                     {"detail": "You do not have a user profile."},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
             if user.profile.role != 'agent':
-                logger.warning(f"User {user.username} attempted to access agent properties but is not an agent (role: {user.profile.role})")
+                logger.warning(
+                    f"User {user.username} attempted to access agent properties but is not an agent (role: {user.profile.role})")
                 return Response(
                     {"detail": "You must have an agent role to access agent properties."},
                     status=status.HTTP_403_FORBIDDEN
@@ -156,7 +168,8 @@ class HouseViewSet(viewsets.ModelViewSet):
                 }
             )
             if created:
-                logger.info(f"Auto-created agent profile for user {user.username}")
+                logger.info(
+                    f"Auto-created agent profile for user {user.username}")
 
             # Get the properties and return them
             houses = House.objects.filter(agent=agent)
@@ -165,11 +178,13 @@ class HouseViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             # Log any unexpected errors
-            logger.error(f"Error retrieving agent properties for user {user.username}: {str(e)}")
+            logger.error(
+                f"Error retrieving agent properties for user {user.username}: {str(e)}")
             return Response(
                 {"detail": "An error occurred while retrieving your properties."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
 
 class PropertyTypeViewSet(viewsets.ModelViewSet):
     """
@@ -192,6 +207,7 @@ class PropertyTypeViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated(), IsAgent()]
         return [permissions.IsAuthenticated()]
 
+
 class FeatureViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing property features.
@@ -212,6 +228,7 @@ class FeatureViewSet(viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated(), IsAgent()]
         return [permissions.IsAuthenticated()]
+
 
 class PropertyImageViewSet(viewsets.ModelViewSet):
     """
@@ -255,7 +272,8 @@ class PropertyImageViewSet(viewsets.ModelViewSet):
         # Get house_id from request data
         house_id = self.request.data.get('house_id')
         if not house_id:
-            logger.warning(f"User {user.username} attempted to upload an image without providing a house_id")
+            logger.warning(
+                f"User {user.username} attempted to upload an image without providing a house_id")
             raise serializers.ValidationError({
                 "house_id": "House ID is required to associate the image with a property."
             })
@@ -265,7 +283,8 @@ class PropertyImageViewSet(viewsets.ModelViewSet):
             try:
                 house = House.objects.get(pk=house_id)
             except House.DoesNotExist:
-                logger.warning(f"User {user.username} attempted to upload an image for non-existent house {house_id}")
+                logger.warning(
+                    f"User {user.username} attempted to upload an image for non-existent house {house_id}")
                 raise serializers.ValidationError({
                     "house_id": f"Property with ID {house_id} not found."
                 })
@@ -281,11 +300,12 @@ class PropertyImageViewSet(viewsets.ModelViewSet):
                 )
                 raise serializers.ValidationError({
                     "permission": "You don't have permission to add images to this property. "
-                                 "Only the property creator or the associated agent can add images."
+                    "Only the property creator or the associated agent can add images."
                 })
 
             # Save the image
-            logger.info(f"User {user.username} uploading image for house {house_id} as {'creator' if is_creator else 'agent'}")
+            logger.info(
+                f"User {user.username} uploading image for house {house_id} as {'creator' if is_creator else 'agent'}")
             serializer.save(house=house)
 
         except serializers.ValidationError:
@@ -293,10 +313,12 @@ class PropertyImageViewSet(viewsets.ModelViewSet):
             raise
         except Exception as e:
             # Log any unexpected errors
-            logger.error(f"Error uploading image for house {house_id}: {str(e)}")
+            logger.error(
+                f"Error uploading image for house {house_id}: {str(e)}")
             raise serializers.ValidationError({
                 "detail": "An error occurred while uploading the image. Please try again later."
             })
+
 
 class AgentViewSet(viewsets.ModelViewSet):
     """
@@ -355,7 +377,8 @@ class AgentViewSet(viewsets.ModelViewSet):
         try:
             # Check if user has a profile
             if not hasattr(user, 'profile'):
-                logger.warning(f"User {user.username} attempted to access agent profile but has no user profile")
+                logger.warning(
+                    f"User {user.username} attempted to access agent profile but has no user profile")
                 return Response(
                     {"detail": "You do not have a user profile."},
                     status=status.HTTP_403_FORBIDDEN
@@ -363,7 +386,8 @@ class AgentViewSet(viewsets.ModelViewSet):
 
             # Check if user has agent role
             if user.profile.role != 'agent':
-                logger.warning(f"User {user.username} attempted to access agent profile but is not an agent (role: {user.profile.role})")
+                logger.warning(
+                    f"User {user.username} attempted to access agent profile but is not an agent (role: {user.profile.role})")
                 return Response(
                     {"detail": "You must have an agent role to access an agent profile."},
                     status=status.HTTP_403_FORBIDDEN
@@ -373,7 +397,8 @@ class AgentViewSet(viewsets.ModelViewSet):
             try:
                 agent = Agent.objects.get(user=user)
             except Agent.DoesNotExist:
-                logger.error(f"User {user.username} has agent role but no agent profile")
+                logger.error(
+                    f"User {user.username} has agent role but no agent profile")
                 return Response(
                     {"detail": "You have an agent role but no agent profile. Please contact an administrator."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -385,11 +410,13 @@ class AgentViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             # Log any unexpected errors
-            logger.error(f"Error retrieving agent profile for user {user.username}: {str(e)}")
+            logger.error(
+                f"Error retrieving agent profile for user {user.username}: {str(e)}")
             return Response(
                 {"detail": "An error occurred while retrieving your agent profile."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     """
@@ -444,7 +471,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         try:
             # Check if user is a tenant
             if not hasattr(request.user, 'profile') or request.user.profile.role != 'tenant':
-                logger.warning(f"User {request.user.username} attempted to access tenant-only feature but is not a tenant")
+                logger.warning(
+                    f"User {request.user.username} attempted to access tenant-only feature but is not a tenant")
                 return Response(
                     {"detail": "This feature is only available for tenants."},
                     status=status.HTTP_403_FORBIDDEN
@@ -459,7 +487,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
             else:
                 # Get property types and features from favorites
                 favorite_houses = [fav.house for fav in favorites]
-                property_types = set(house.property_type for house in favorite_houses if house.property_type)
+                property_types = set(
+                    house.property_type for house in favorite_houses if house.property_type)
 
                 # Find similar properties
                 recommended = House.objects.filter(
@@ -472,11 +501,13 @@ class FavoriteViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         except Exception as e:
-            logger.error(f"Error getting recommendations for user {request.user.username}: {str(e)}")
+            logger.error(
+                f"Error getting recommendations for user {request.user.username}: {str(e)}")
             return Response(
                 {"detail": "An error occurred while retrieving recommendations."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
 
 class UserProfileViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -496,6 +527,7 @@ class UserProfileViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -510,6 +542,7 @@ class RegisterView(APIView):
                 'detail': 'Registration successful.'
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserMeView(APIView):
     """
@@ -599,7 +632,8 @@ class PropertyInquiryViewSet(viewsets.ModelViewSet):
 
         # Check if user has a profile
         if not hasattr(user, 'profile'):
-            logger.warning(f"User {user.username} attempted to access inquiries but has no profile")
+            logger.warning(
+                f"User {user.username} attempted to access inquiries but has no profile")
             return PropertyInquiry.objects.none()
 
         # Return inquiries based on role
@@ -610,7 +644,8 @@ class PropertyInquiryViewSet(viewsets.ModelViewSet):
                 agent = Agent.objects.get(user=user)
                 return PropertyInquiry.objects.filter(house__agent=agent)
             except Agent.DoesNotExist:
-                logger.error(f"User {user.username} has agent role but no agent profile")
+                logger.error(
+                    f"User {user.username} has agent role but no agent profile")
                 return PropertyInquiry.objects.none()
         elif user.profile.role == 'admin':
             return PropertyInquiry.objects.all()
@@ -628,7 +663,8 @@ class PropertyInquiryViewSet(viewsets.ModelViewSet):
 
         # Check if user is a tenant
         if not hasattr(user, 'profile') or user.profile.role != 'tenant':
-            logger.warning(f"User {user.username} attempted to create an inquiry but is not a tenant")
+            logger.warning(
+                f"User {user.username} attempted to create an inquiry but is not a tenant")
             raise serializers.ValidationError({
                 "detail": "Only tenants can create property inquiries."
             })
@@ -650,13 +686,15 @@ class PropertyInquiryViewSet(viewsets.ModelViewSet):
         try:
             agent = Agent.objects.get(user=request.user)
             if inquiry.house.agent != agent:
-                logger.warning(f"Agent {agent.name} attempted to respond to an inquiry about a property not associated with them")
+                logger.warning(
+                    f"Agent {agent.name} attempted to respond to an inquiry about a property not associated with them")
                 return Response(
                     {"detail": "You can only respond to inquiries about your own properties."},
                     status=status.HTTP_403_FORBIDDEN
                 )
         except Agent.DoesNotExist:
-            logger.error(f"User {request.user.username} has agent role but no agent profile")
+            logger.error(
+                f"User {request.user.username} has agent role but no agent profile")
             return Response(
                 {"detail": "You have an agent role but no agent profile. Please contact an administrator."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

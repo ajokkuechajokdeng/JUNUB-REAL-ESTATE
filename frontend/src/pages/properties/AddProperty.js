@@ -12,8 +12,8 @@ const AddProperty = () => {
     description: "",
     price: "",
     location: "",
-    address: "", // Added address field
-    property_type_id: "", // Use property_type_id for backend compatibility
+    address: "",
+    property_type_id: "",
     bedrooms: "",
     bathrooms: "",
     area: "",
@@ -50,7 +50,6 @@ const AddProperty = () => {
     setError(null);
     setSuccess(false);
     try {
-      // 1. Create property (without images)
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("description", form.description);
@@ -71,9 +70,14 @@ const AddProperty = () => {
           formData.append("uploaded_images", img);
         }
       }
-      const res = await propertiesAPI.createProperty(formData);
+      await propertiesAPI.createProperty(formData);
       setLoading(false);
       setSuccess(true);
+
+      // Show success message briefly, then redirect to dashboard
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 1500);
     } catch (err) {
       setLoading(false);
       setError(err?.response?.data?.detail || "Failed to add property.");
@@ -277,7 +281,7 @@ const AddProperty = () => {
           {error && <div className="text-red-600 text-sm">{error}</div>}
           {success && (
             <div className="text-green-600 text-sm">
-              {t("Property added successfully!")}
+              {t("Property added successfully! Redirecting to dashboard...")}
             </div>
           )}
           <div className="flex justify-between items-center">

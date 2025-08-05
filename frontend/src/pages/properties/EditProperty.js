@@ -29,17 +29,19 @@ const EditProperty = () => {
   const [existingImages, setExistingImages] = useState([]);
 
   useEffect(() => {
-    propertiesAPI
-      .getPropertyTypes()
-      .then((res) => setPropertyTypes(res.data.results || res.data));
-    propertiesAPI
-      .getProperty(id)
-      .then((res) => {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      propertiesAPI.getPropertyTypes(),
+      propertiesAPI.getProperty(id),
+    ])
+      .then(([typesRes, propRes]) => {
+        setPropertyTypes(typesRes.data.results || typesRes.data);
         setForm({
-          ...res.data,
-          property_type_id: res.data.property_type?.id || "",
+          ...propRes.data,
+          property_type_id: propRes.data.property_type?.id || "",
         });
-        setExistingImages(res.data.images || []);
+        setExistingImages(propRes.data.images || []);
         setLoading(false);
       })
       .catch(() => {
@@ -57,6 +59,11 @@ const EditProperty = () => {
     const files = Array.from(e.target.files);
     setImages(files);
     setImagePreviews(files.map((file) => URL.createObjectURL(file)));
+  };
+
+  const handleRemoveExistingImage = (idx) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== idx));
+    // Optionally, call API to delete image from backend here
   };
 
   const handleSubmit = async (e) => {
@@ -83,7 +90,7 @@ const EditProperty = () => {
         }
       }
       setSuccess(true);
-      setTimeout(() => navigate("/my-properties"), 1500);
+      setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
     } catch (err) {
       setError(t("Failed to update property. Please check your input."));
     } finally {
@@ -91,7 +98,12 @@ const EditProperty = () => {
     }
   };
 
-  if (loading) return <div className="pt-24">{t("Loading...")}</div>;
+  if (loading)
+    return (
+      <div className="pt-24 flex justify-center items-center min-h-screen">
+        <span className="text-lg text-gray-700">{t("Loading...")}</span>
+      </div>
+    );
 
   return (
     <div className="bg-gray-100 min-h-screen pt-24 pb-12">
@@ -274,16 +286,25 @@ const EditProperty = () => {
               onChange={handleImageChange}
               className="w-full"
             />
-            {/* Existing images */}
+            {/* Existing images with remove option */}
             {existingImages.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {existingImages.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img.image_url || img.url || img}
-                    alt="existing"
-                    className="h-20 w-20 object-cover rounded border"
-                  />
+                  <div key={idx} className="relative group">
+                    <img
+                      src={img.image_url || img.url || img}
+                      alt="existing"
+                      className="h-20 w-20 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExistingImage(idx)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                      title={t("Remove image")}
+                    >
+                      &times;
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -304,7 +325,7 @@ const EditProperty = () => {
           {error && <div className="text-red-600 text-sm">{error}</div>}
           {success && (
             <div className="text-green-600 text-sm">
-              {t("Property updated successfully!")}
+              {t("Property updated successfully! Redirecting...")}
             </div>
           )}
           <div className="flex justify-between items-center">
