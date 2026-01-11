@@ -3,7 +3,7 @@ import alanBtn from "@alan-ai/alan-sdk-web";
 import { useNavigate } from "react-router-dom";
 
 const alanKey =
-  "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage"; // Replace with your Alan Studio key
+  "9798b1d6b292342e6db14d79b0741baf2e956eca572e1d8b807a3e2338fdd0dc/stage"; 
 
 const useAlan = (onFilterCommand) => {
   const navigate = useNavigate();
